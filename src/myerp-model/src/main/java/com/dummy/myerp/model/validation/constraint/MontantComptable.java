@@ -28,7 +28,7 @@ import javax.validation.constraints.Digits;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {})
 @Documented
-public @interface MontantComptable {
+public @interface  MontantComptable {
 
     /** Message de la violation */
     String message() default "Taux de TVA invalide";
