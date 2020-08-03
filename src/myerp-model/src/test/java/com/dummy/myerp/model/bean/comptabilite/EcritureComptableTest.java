@@ -32,6 +32,14 @@ public class EcritureComptableTest {
         vEcriture.getListLigneEcriture().add(this.createLigne(2, "40", "7"));
         Assert.assertTrue(vEcriture.toString(), vEcriture.isEquilibree());
 
+
+    }
+
+    @Test
+    public void isntEquilibree() {
+        EcritureComptable vEcriture;
+        vEcriture = new EcritureComptable();
+
         vEcriture.getListLigneEcriture().clear();
         vEcriture.setLibelle("Non équilibrée");
         vEcriture.getListLigneEcriture().add(this.createLigne(1, "10", null));
