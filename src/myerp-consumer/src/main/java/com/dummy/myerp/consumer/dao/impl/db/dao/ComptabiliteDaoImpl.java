@@ -55,9 +55,11 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
     }
     @Override
     public List<CompteComptable> getListCompteComptable() {
+        /*JdbcTemplate, classe créée à partir de la datasource MYERP.
+        * Cela permettra de définir et d’exécuter des requêtes sql sur les tables du schéma MYERP.*/
         JdbcTemplate vJdbcTemplate = new JdbcTemplate(this.getDataSource(DataSourcesEnum.MYERP));
-        CompteComptableRM vRM = new CompteComptableRM();
-        List<CompteComptable> vList = vJdbcTemplate.query(SQLgetListCompteComptable, vRM);
+        CompteComptableRM vRM = new CompteComptableRM(); //Récupère le mapping rowmapper de CompteComptable
+        List<CompteComptable> vList = vJdbcTemplate.query(SQLgetListCompteComptable, vRM); // On récupère le résultat de la requête sql et on la mappe au vRM.
         return vList;
     }
 
@@ -169,7 +171,7 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
 
         vJdbcTemplate.update(SQLinsertEcritureComptable, vSqlParams);
 
-        // ----- Récupération de l'id
+        // ----- Récupération de l'id (de l'écriture comptable qui vient d'être créée?)
         Integer vId = this.queryGetSequenceValuePostgreSQL(DataSourcesEnum.MYERP, "myerp.ecriture_comptable_id_seq",
                                                            Integer.class);
         pEcritureComptable.setId(vId);
