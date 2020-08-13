@@ -25,6 +25,11 @@
     <!-- ==================== Consumer-Proxy ==================== -->
 
     <!-- ConsumerHelper -->
+    <!--
+        In Spring, you can use MethodInvokingFactoryBean to run a method,
+        get the result and inject the result into another bean.
+     -->
+    <!-- Run configure() method from com.dummy.myerp.consumer.ConsumerHelper, with argument 'DaoProxy' -->
     <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetClass" value="com.dummy.myerp.consumer.ConsumerHelper"/>
         <property name="targetMethod" value="configure"/>
