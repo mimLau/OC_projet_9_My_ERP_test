@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   myerp.db:
     image: postgres:9.4
