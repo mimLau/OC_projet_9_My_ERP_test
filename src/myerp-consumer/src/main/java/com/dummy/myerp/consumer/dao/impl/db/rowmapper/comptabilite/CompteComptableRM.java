@@ -10,6 +10,11 @@ import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
 /**
  * {@link RowMapper} de {@link CompteComptable}
  */
+
+/*
+* RowMapper<CompteComptable> permet de mapper une ligne de résultat
+* de la table compte_comptable en objet de type CompteComptable
+ * */
 public class CompteComptableRM implements RowMapper<CompteComptable> {
 
     @Override
