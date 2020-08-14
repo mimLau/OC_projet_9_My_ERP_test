@@ -10,9 +10,6 @@ import javax.validation.constraints.Size;
 public class SequenceEcritureComptable {
 
     // ==================== Attributs ====================
-    /** Journal comptable */
-    @NotNull private JournalComptable journal;
-
     /** L'année */
     private Integer annee;
 
@@ -32,20 +29,13 @@ public class SequenceEcritureComptable {
      * @param pAnnee -
      * @param pDerniereValeur -
      */
-    public SequenceEcritureComptable(JournalComptable pJournal, Integer pAnnee, Integer pDerniereValeur) {
-        journal = pJournal;
+    public SequenceEcritureComptable(Integer pAnnee, Integer pDerniereValeur) {
         annee = pAnnee;
         derniereValeur = pDerniereValeur;
     }
 
 
     // ==================== Getters/Setters ====================
-    public JournalComptable getJournal() {
-        return journal;
-    }
-    public void setJournal(JournalComptable pJournal) {
-        journal = pJournal;
-    }
     public Integer getAnnee() {
         return annee;
     }
