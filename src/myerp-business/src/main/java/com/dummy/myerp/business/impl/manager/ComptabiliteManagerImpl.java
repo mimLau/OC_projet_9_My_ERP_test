@@ -83,7 +83,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         calendar.setTime(date);
         Integer ecritureYear = calendar.get(Calendar.YEAR);
 
-
         //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
         SequenceEcritureComptable retrievedSeqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, journalCode);
         SequenceEcritureComptable newSequenceEcritureComptable = new SequenceEcritureComptable();
@@ -100,7 +99,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             newSequenceEcritureComptable.setAnnee(ecritureYear);
             newSequenceEcritureComptable.setJournal(pEcritureComptable.getJournal());
             newSequenceEcritureComptable.setDerniereValeur(1);
-            getDaoProxy().getComptabiliteDao().insertSequenceEcritureComptable(newSequenceEcritureComptable);
+            this.createNewSequenceEcritureComptrable(newSequenceEcritureComptable);
         }
 
         //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
@@ -294,5 +293,21 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 getTransactionManager().rollbackMyERP(vTS);
         }
     }
+
+
+    /**
+     *  Insert a new seauenceEcritureComptable
+     * @param sequenceEcritureComptable
+     */
+    protected void createNewSequenceEcritureComptrable(SequenceEcritureComptable sequenceEcritureComptable) {
+        TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+        try {
+            getDaoProxy().getComptabiliteDao().insertSequenceEcritureComptable(sequenceEcritureComptable);
+            vTS = null;
+        } finally {
+            getTransactionManager().rollbackMyERP(vTS);
+        }
+    }
+
 
 }
