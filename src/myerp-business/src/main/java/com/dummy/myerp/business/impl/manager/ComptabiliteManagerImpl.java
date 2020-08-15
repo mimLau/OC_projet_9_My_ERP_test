@@ -110,11 +110,24 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             newSequenceEcritureComptable.setJournal(pEcritureComptable.getJournal());
             newSequenceEcritureComptable.setDerniereValeur(1);
             // Crée une nouvelle séquence
-            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(newSequenceEcritureComptable);
-
-            //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
-
+            getDaoProxy().getComptabiliteDao().insertSequenceEcritureComptable(newSequenceEcritureComptable);
         }
+
+        //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
+        /*
+         *  La référence d'une écriture comptable est composée du code du journal dans lequel figure l'écriture
+         *  suivi de l'année et d'un numéro de séquence (propre à chaque journal) sur 5 chiffres incrémenté
+         *  automatiquement à chaque écriture.
+         *  la référence est : XX-AAAA/#####.
+         *  Ex : Journal de banque (BQ), écriture au 31/12/2016
+         *       --> BQ-2016/00001
+         *
+         * Questions? On cosnidère que pEcritureComptable est une écriture qui existe déjà dans la bdd? mais si elle existe
+         * déjà, je n'arrive pas à comprendre pourquoi lui créer une séquence, y a un truc que je ne saisis pas. Une séquence n'est
+         * elle pas créée ou updatée à chaque fois qu'une nouvelle écriture comptable est insérée dans la table.
+         * Donc pour lui générer sa référence, il faut compter le nb de ligne qu'il y a dans la table et incrémenter de 1
+         * cette valeur qui correspondra au numéro de séquence de la ref?
+         * */
     }
 
     /**
