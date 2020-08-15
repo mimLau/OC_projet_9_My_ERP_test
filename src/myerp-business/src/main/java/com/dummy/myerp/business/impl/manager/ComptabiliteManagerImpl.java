@@ -83,20 +83,14 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         calendar.setTime(date);
         Integer ecritureYear = calendar.get(Calendar.YEAR);
 
-        SequenceEcritureComptable retrievedSeqEcritureComptable;
+
+        //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
+        SequenceEcritureComptable retrievedSeqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, journalCode);
         SequenceEcritureComptable newSequenceEcritureComptable = new SequenceEcritureComptable();
 
 
 
-        try {
-            //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
-            retrievedSeqEcritureComptable = getDaoProxy()
-                                                    .getComptabiliteDao()
-                                                    .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
 
-        } catch (NotFoundException e) {
-            retrievedSeqEcritureComptable = null;
-        }
 
         if(retrievedSeqEcritureComptable != null) {
             // Si la séquence d'écriture existe, on incrémente de 1 la dernière valeur.
@@ -263,5 +257,34 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         } finally {
             getTransactionManager().rollbackMyERP(vTS);
         }
+    }
+
+    /**
+     * Search a sequenceEcritureCompatble in fucntion the year and the journalCode
+     * @param ecritureYear year of the ecriture comptable.
+     * @param journalCode the journal code of the ecriture comptable.
+     * @return the retrieved sequenceEcritureComptable
+     */
+    protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, String journalCode) {
+        SequenceEcritureComptable retrievedSeqEcritureComptable;
+
+        try {
+            TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+            try {
+                retrievedSeqEcritureComptable = getDaoProxy()
+                        .getComptabiliteDao()
+                        .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
+                getTransactionManager().commitMyERP(vTS);
+                vTS = null;
+            } finally {
+                getTransactionManager().rollbackMyERP(vTS);
+            }
+
+
+        } catch (NotFoundException e) {
+            retrievedSeqEcritureComptable = null;
+        }
+
+        return retrievedSeqEcritureComptable;
     }
 }
