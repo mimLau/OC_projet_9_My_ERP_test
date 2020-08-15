@@ -90,6 +90,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             // Si la séquence d'écriture existe, on incrémente de 1 la dernière valeur.
             retrievedSeqEcritureComptable.setDerniereValeur(retrievedSeqEcritureComptable.getDerniereValeur() + 1);
             //Mettre à jour la séquence d'écriture
+            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(retrievedSeqEcritureComptable);
 
         } else {
             // Sinon, on crée une nouvelle séquence d'écriture avec 1 pour dernière valeur.

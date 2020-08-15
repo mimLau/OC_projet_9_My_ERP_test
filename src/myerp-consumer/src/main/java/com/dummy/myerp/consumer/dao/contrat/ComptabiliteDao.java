@@ -93,4 +93,11 @@ public interface ComptabiliteDao {
      * @throws NotFoundException : Si la séquence de l'écriture comptable n'a pas été trouvée
      */
     SequenceEcritureComptable  getSeqEcritureComptableByJCodeAndYear(Integer ecritureYear, String journalCode) throws NotFoundException;
+
+    /**
+     * Met à jour la séquence d'écriture comptable.
+     *
+     * @param sequenceEcritureComptable
+     */
+    void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
 }

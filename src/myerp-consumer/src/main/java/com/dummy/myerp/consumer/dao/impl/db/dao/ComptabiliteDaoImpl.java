@@ -274,7 +274,6 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
     }
     @Override
     public SequenceEcritureComptable getSeqEcritureComptableByJCodeAndYear(Integer ecritureYear, String journalCode) throws NotFoundException {
-       //
         NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
         MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
         vSqlParams.addValue("annee", ecritureYear);
@@ -287,4 +286,27 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
 
         return vSequenceEcritureComptable;
     }
+
+    // ==================== SequenceEcritureComptable - UPDATE ====================
+
+    /** SQLupdateSequenceEcritureComptable */
+    private static String SQLupdateSequenceEcritureComptable;
+    public void setSQLupdateSequenceEcritureComptable(String pSQLupdateSequenceEcritureComptable) {
+        SQLupdateSequenceEcritureComptable = pSQLupdateSequenceEcritureComptable;
+    }
+
+    @Override
+    public void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
+
+        NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
+        MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
+        vSqlParams.addValue("journal_code", sequenceEcritureComptable.getJournal().getCode());
+        vSqlParams.addValue("annee", sequenceEcritureComptable.getAnnee());
+        vSqlParams.addValue("derniere_Valeur", sequenceEcritureComptable.getDerniereValeur());
+
+        vJdbcTemplate.update(SQLupdateSequenceEcritureComptable, vSqlParams);
+
+    }
+
+
 }
