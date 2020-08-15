@@ -60,46 +60,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     // TODO à tester
     @Override
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
-        // TODO à implémenter
-
-        //Récupération du code du journal_code de pEcritureComptable
-        String journalCode =  pEcritureComptable.getJournal().getCode();
-
-        //Récupération de la date de pEcritureComptable puis extraire l'année d'écriture
-        Date date = pEcritureComptable.getDate();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        Integer ecritureYear = calendar.get(Calendar.YEAR);
-
-        SequenceEcritureComptable retrievedSeqEcritureComptable;
-        SequenceEcritureComptable newSequenceEcritureComptable = new SequenceEcritureComptable();
-
-        //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
-
-        try {
-            retrievedSeqEcritureComptable = getDaoProxy()
-                                                    .getComptabiliteDao()
-                                                    .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
-
-        } catch (NotFoundException e) {
-            retrievedSeqEcritureComptable = null;
-        }
-
-
-        if(retrievedSeqEcritureComptable != null) {
-            // Si la séquence d'écriture existe, on incrémente de 1 la dernière valeur.
-            retrievedSeqEcritureComptable.setDerniereValeur(retrievedSeqEcritureComptable.getDerniereValeur() + 1);
-            //Mettre à jour la séquence d'écriture
-            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(retrievedSeqEcritureComptable);
-
-        } else {
-            // Sinon, on crée une nouvelle séquence d'écriture avec 1 pour dernière valeur.
-            newSequenceEcritureComptable.setAnnee(ecritureYear);
-            newSequenceEcritureComptable.setJournal(pEcritureComptable.getJournal());
-            newSequenceEcritureComptable.setDerniereValeur(1);
-            // Crée une nouvelle séquence
-
-        }
 
         // Bien se réferer à la JavaDoc de cette méthode !
         /* Le principe :
@@ -113,6 +73,48 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 4.  Enregistrer (insert/update) la valeur de la séquence en persistance
                     (table sequence_ecriture_comptable)
          */
+
+        //Récupération du code du journal_code de pEcritureComptable
+        String journalCode =  pEcritureComptable.getJournal().getCode();
+
+        //Récupération de la date de pEcritureComptable puis extraire l'année d'écriture
+        Date date = pEcritureComptable.getDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        Integer ecritureYear = calendar.get(Calendar.YEAR);
+
+        SequenceEcritureComptable retrievedSeqEcritureComptable;
+        SequenceEcritureComptable newSequenceEcritureComptable = new SequenceEcritureComptable();
+
+
+
+        try {
+            //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
+            retrievedSeqEcritureComptable = getDaoProxy()
+                                                    .getComptabiliteDao()
+                                                    .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
+
+        } catch (NotFoundException e) {
+            retrievedSeqEcritureComptable = null;
+        }
+
+        if(retrievedSeqEcritureComptable != null) {
+            // Si la séquence d'écriture existe, on incrémente de 1 la dernière valeur.
+            retrievedSeqEcritureComptable.setDerniereValeur(retrievedSeqEcritureComptable.getDerniereValeur() + 1);
+            //Mettre à jour la séquence d'écriture
+            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(retrievedSeqEcritureComptable);
+
+        } else {
+            // Sinon, on crée une nouvelle séquence d'écriture avec 1 pour dernière valeur.
+            newSequenceEcritureComptable.setAnnee(ecritureYear);
+            newSequenceEcritureComptable.setJournal(pEcritureComptable.getJournal());
+            newSequenceEcritureComptable.setDerniereValeur(1);
+            // Crée une nouvelle séquence
+            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(newSequenceEcritureComptable);
+
+            //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
+
+        }
     }
 
     /**

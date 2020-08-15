@@ -100,4 +100,11 @@ public interface ComptabiliteDao {
      * @param sequenceEcritureComptable
      */
     void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
+
+    /**
+     * Insérer une séquence d'écriture comptable.
+     *
+     * @param sequenceEcritureComptable
+     */
+    void insertSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
 }
