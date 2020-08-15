@@ -107,4 +107,10 @@ public interface ComptabiliteDao {
      * @param sequenceEcritureComptable
      */
     void insertSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
+
+    /**
+     *
+     * @return number of rows of ecriture_comptable table
+     */
+    int countEcritureComptableRows();
 }

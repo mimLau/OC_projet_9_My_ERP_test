@@ -87,7 +87,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         SequenceEcritureComptable retrievedSeqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, journalCode);
         SequenceEcritureComptable newSequenceEcritureComptable = new SequenceEcritureComptable();
 
-
         if(retrievedSeqEcritureComptable != null) {
             // Si la séquence d'écriture existe, on incrémente de 1 la dernière valeur.
             retrievedSeqEcritureComptable.setDerniereValeur(retrievedSeqEcritureComptable.getDerniereValeur() + 1);
@@ -101,6 +100,15 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             newSequenceEcritureComptable.setDerniereValeur(1);
             this.createNewSequenceEcritureComptrable(newSequenceEcritureComptable);
         }
+
+
+        // Récupération du numéro de séquence de la référence de la derniere écriture comptable enregistrée.
+        int lastSeqValue = getDaoProxy().getComptabiliteDao().countEcritureComptableRows();
+        // Génlration de la nouvelle référence
+        String updatedReference = journalCode + "-" + ecritureYear + "/" + String.format("%05d", lastSeqValue + 1);
+        // Mettre à jour la référence de l'écritureComptable
+
+
 
         //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
         /*

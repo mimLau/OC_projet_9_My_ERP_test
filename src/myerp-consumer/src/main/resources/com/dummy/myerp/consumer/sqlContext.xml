@@ -115,6 +115,12 @@
                 )
             </value>
         </property>
+        <property name="SQLcountRowsEcritureComptable">
+            <value>
+                SELECT COUNT(*) FROM myerp.ecriture_comptable
+
+            </value>
+        </property>
     </bean>
 
 </beans>
