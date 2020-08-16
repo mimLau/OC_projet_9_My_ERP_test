@@ -101,7 +101,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             this.createNewSequenceEcritureComptrable(newSequenceEcritureComptable);
         }
 
-
         // Récupération du numéro de séquence de la référence de la derniere écriture comptable enregistrée.
         int lastSeqValue = getDaoProxy().getComptabiliteDao().countEcritureComptableRows();
         // Génlration de la nouvelle référence
@@ -271,16 +270,10 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, String journalCode) {
         SequenceEcritureComptable retrievedSeqEcritureComptable;
         try {
-            TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
-            try {
                 retrievedSeqEcritureComptable = getDaoProxy()
                         .getComptabiliteDao()
                         .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
-                getTransactionManager().commitMyERP(vTS);
-                vTS = null;
-            } finally {
-                getTransactionManager().rollbackMyERP(vTS);
-            }
+
         } catch (NotFoundException e) {
             retrievedSeqEcritureComptable = null;
         }
@@ -304,7 +297,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
 
     /**
-     *  Insert a new seauenceEcritureComptable
+     *  Insert a new sequenceEcritureComptable
      * @param sequenceEcritureComptable
      */
     protected void createNewSequenceEcritureComptrable(SequenceEcritureComptable sequenceEcritureComptable) {
