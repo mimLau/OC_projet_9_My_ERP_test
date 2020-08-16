@@ -293,12 +293,13 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
         vSqlParams.addValue("annee", ecritureYear);
         vSqlParams.addValue("journal_code", journalCode);
         SequenceEcritureComptableRM vRM = new SequenceEcritureComptableRM();
-
-        SequenceEcritureComptable vSequenceEcritureComptable = vJdbcTemplate.queryForObject(SQLgetSeqEcritureComptable, vSqlParams, vRM);
-        if(vSequenceEcritureComptable == null )
-            throw new NotFoundException();
-
-        return vSequenceEcritureComptable;
+        SequenceEcritureComptable vBean;
+        try {
+            vBean = vJdbcTemplate.queryForObject(SQLgetSeqEcritureComptable, vSqlParams, vRM);
+        } catch (EmptyResultDataAccessException vEx) {
+            throw new NotFoundException("SequenceEcritureComptable non trouvée : journal_Code = " + journalCode + ", année = " + ecritureYear);
+        }
+        return vBean;
     }
 
     // ==================== SequenceEcritureComptable - UPDATE ====================
