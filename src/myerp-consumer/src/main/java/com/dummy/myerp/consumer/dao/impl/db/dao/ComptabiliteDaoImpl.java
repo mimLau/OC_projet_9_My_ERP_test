@@ -202,20 +202,6 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
         }
     }
 
-    /** SQLcountRowsEcritureComptable */
-    private static String SQLcountRowsEcritureComptable;
-    public void getSQLCountRowsEcritureComptable(String pSQLcountRowsEcritureComptable) {
-        SQLcountRowsEcritureComptable = pSQLcountRowsEcritureComptable;
-    }
-
-    @Override
-    public int countEcritureComptableRows() {
-        JdbcTemplate vJdbcTemplate = new JdbcTemplate(this.getDataSource(DataSourcesEnum.MYERP));
-        int rows = vJdbcTemplate.queryForObject(SQLcountRowsEcritureComptable, Integer.class);
-
-        return rows;
-    }
-
 
     // ==================== EcritureComptable - UPDATE ====================
 
