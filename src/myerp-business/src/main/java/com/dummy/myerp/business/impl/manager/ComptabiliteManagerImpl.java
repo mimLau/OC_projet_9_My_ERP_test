@@ -62,6 +62,8 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     @Override
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
 
+        //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
+
         // Bien se réferer à la JavaDoc de cette méthode !
         /* Le principe :
                 1.  Remonter depuis la persitance la dernière valeur de la séquence du journal pour l'année de l'écriture
@@ -107,28 +109,9 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
         // Récupération de la dernière valeur de la séquence de l'ecriture comptable.
         int incrementedDerniereValeur = seqEcritureComptable.getDerniereValeur();
-        // Génération de la nouvelle référence
-        String updatedReference = journalCode + "-" + ecritureYear + "/" +  referenceCodeFormat.format(incrementedDerniereValeur);
         // Mettre à jour la référence de l'écritureComptable
+        String updatedReference = journalCode + "-" + ecritureYear + "/" +  referenceCodeFormat.format(incrementedDerniereValeur);
 
-
-
-        //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
-        /*
-         *  La référence d'une écriture comptable est composée du code du journal dans lequel figure l'écriture
-         *  suivi de l'année et d'un numéro de séquence (propre à chaque journal) sur 5 chiffres incrémenté
-         *  automatiquement à chaque écriture.
-         *  la référence est : XX-AAAA/#####.
-         *  Ex : Journal de banque (BQ), écriture au 31/12/2016
-         *       --> BQ-2016/00001
-         *
-         * Questions? On cosnidère que pEcritureComptable est une écriture qui existe déjà dans la bdd? mais si elle existe
-         * déjà, je n'arrive pas à comprendre pourquoi lui créer une séquence, y a un truc que je ne saisis pas. Une séquence n'est
-         * elle pas créée ou updatée à chaque fois qu'une nouvelle écriture comptable est insérée dans la table.
-         *
-         * Pour générer une référence, il faut compter le nb de ligne qu'il y a dans la table et incrémenter de 1
-         * cette valeur qui correspondra au numéro de séquence de la ref?
-         * */
     }
 
     /**
