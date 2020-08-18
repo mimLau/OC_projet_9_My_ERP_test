@@ -48,7 +48,11 @@
 
 
     <!-- ==================== Databases ==================== -->
-    <bean id="dataSourceMYERP" class="com.dummy.myerp.technical.util.spring.NullFactoryBean">
+    <bean name="dataSourceMYERP" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="org.postgresql.Driver" />
+        <property name="url" value="#{environment.getProperty('DB_URL')}" />
+        <property name="username" value="#{environment.getProperty('POSTGRES_USER')}" />
+        <property name="password" value="#{environment.getProperty('POSTGRES_PASSWORD')}" />
         <constructor-arg value="javax.sql.DataSource"/>
     </bean>
 
