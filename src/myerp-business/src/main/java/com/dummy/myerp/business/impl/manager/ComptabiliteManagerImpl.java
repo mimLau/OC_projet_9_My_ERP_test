@@ -1,6 +1,7 @@
 package com.dummy.myerp.business.impl.manager;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -84,27 +85,30 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         Integer ecritureYear = calendar.get(Calendar.YEAR);
 
         //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
-        SequenceEcritureComptable retrievedSeqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, pEcritureComptable);
-        SequenceEcritureComptable newSequenceEcritureComptable = new SequenceEcritureComptable();
+        SequenceEcritureComptable seqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, journalCode);
 
-        if(retrievedSeqEcritureComptable != null) {
+        String pattern = "00000";
+        DecimalFormat referenceCodeFormat = new DecimalFormat(pattern);
+
+        if(seqEcritureComptable != null) {
             // Si la séquence d'écriture existe, on incrémente de 1 la dernière valeur.
-            retrievedSeqEcritureComptable.setDerniereValeur(retrievedSeqEcritureComptable.getDerniereValeur() + 1);
+            seqEcritureComptable.setDerniereValeur(seqEcritureComptable.getDerniereValeur() + 1);
             //Mettre à jour la séquence d'écriture
-            this.updateSequenceEcritureComptable(retrievedSeqEcritureComptable);
+            this.updateSequenceEcritureComptable(seqEcritureComptable);
 
         } else {
             // Sinon, on crée une nouvelle séquence d'écriture avec 1 pour dernière valeur.
-            newSequenceEcritureComptable.setAnnee(ecritureYear);
-            newSequenceEcritureComptable.setJournal(pEcritureComptable.getJournal());
-            newSequenceEcritureComptable.setDerniereValeur(1);
-            this.createNewSequenceEcritureComptrable(newSequenceEcritureComptable);
+            seqEcritureComptable = new SequenceEcritureComptable();
+            seqEcritureComptable.setAnnee(ecritureYear);
+            seqEcritureComptable.setJournal(pEcritureComptable.getJournal());
+            seqEcritureComptable.setDerniereValeur(1);
+            this.createNewSequenceEcritureComptrable(seqEcritureComptable);
         }
 
-        // Récupération du numéro de séquence de la référence de la derniere écriture comptable enregistrée.
-        int lastSeqValue = getDaoProxy().getComptabiliteDao().countEcritureComptableRows();
-        // Génlration de la nouvelle référence
-        String updatedReference = journalCode + "-" + ecritureYear + "/" + String.format("%05d", lastSeqValue + 1);
+        // Récupération de la dernière valeur de la séquence de l'ecriture comptable.
+        int incrementedDerniereValeur = seqEcritureComptable.getDerniereValeur();
+        // Génération de la nouvelle référence
+        String updatedReference = journalCode + "-" + ecritureYear + "/" +  referenceCodeFormat.format(incrementedDerniereValeur);
         // Mettre à jour la référence de l'écritureComptable
 
 
@@ -265,15 +269,15 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     /**
      * Search a sequenceEcritureCompatble in fucntion the year and the journalCode
      * @param ecritureYear year of the ecriture comptable.
-     * @param ecritureComptable
+     * @param journalCode the journal code of the ecriture comptable.
      * @return the retrieved sequenceEcritureComptable
      */
-    protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, EcritureComptable ecritureComptable) {
+    protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, String journalCode) {
         SequenceEcritureComptable retrievedSeqEcritureComptable;
         try {
                 retrievedSeqEcritureComptable = getDaoProxy()
                         .getComptabiliteDao()
-                        .getSeqEcritureComptableByJCodeAndYear(ecritureYear, ecritureComptable);
+                        .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
 
         } catch (NotFoundException e) {
             retrievedSeqEcritureComptable = null;
