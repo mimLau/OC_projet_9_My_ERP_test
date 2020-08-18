@@ -16,6 +16,7 @@ public interface ComptabiliteDao {
 
     /**
      * Renvoie la liste des Comptes Comptables
+     *
      * @return {@link List}
      */
     List<CompteComptable> getListCompteComptable();
@@ -23,6 +24,7 @@ public interface ComptabiliteDao {
 
     /**
      * Renvoie la liste des Journaux Comptables
+     *
      * @return {@link List}
      */
     List<JournalComptable> getListJournalComptable();
@@ -32,6 +34,7 @@ public interface ComptabiliteDao {
 
     /**
      * Renvoie la liste des Écritures Comptables
+     *
      * @return {@link List}
      */
     List<EcritureComptable> getListEcritureComptable();
@@ -88,11 +91,11 @@ public interface ComptabiliteDao {
      * pour l'année d'écriutre {@code année }
      *
      * @param ecritureYear l'année d'écriture du jounal code
-     * @param  journalCode code du journal_code
+     * @param journalCode  code du journal_code
      * @return {@link SequenceEcritureComptable}
      * @throws NotFoundException : Si la séquence de l'écriture comptable n'a pas été trouvée
      */
-    SequenceEcritureComptable  getSeqEcritureComptableByJCodeAndYear(Integer ecritureYear, String journalCode) throws NotFoundException;
+    SequenceEcritureComptable getSeqEcritureComptableByJCodeAndYear(Integer ecritureYear, String journalCode) throws NotFoundException;
 
     /**
      * Met à jour la séquence d'écriture comptable.
@@ -108,9 +111,5 @@ public interface ComptabiliteDao {
      */
     void insertSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
 
-    /**
-     *
-     * @return number of rows of ecriture_comptable table
-     */
-    int countEcritureComptableRows();
 }
+

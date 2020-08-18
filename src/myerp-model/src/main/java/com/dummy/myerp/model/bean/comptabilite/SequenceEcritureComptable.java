@@ -29,6 +29,7 @@ public class SequenceEcritureComptable {
     /**
      * Constructeur
      *
+     * @param  pJournal
      * @param pAnnee -
      * @param pDerniereValeur -
      */
