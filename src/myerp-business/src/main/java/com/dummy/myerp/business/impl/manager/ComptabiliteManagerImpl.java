@@ -84,7 +84,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         Integer ecritureYear = calendar.get(Calendar.YEAR);
 
         //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
-        SequenceEcritureComptable retrievedSeqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, journalCode);
+        SequenceEcritureComptable retrievedSeqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, pEcritureComptable);
         SequenceEcritureComptable newSequenceEcritureComptable = new SequenceEcritureComptable();
 
         if(retrievedSeqEcritureComptable != null) {
@@ -121,7 +121,8 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
          * Questions? On cosnidère que pEcritureComptable est une écriture qui existe déjà dans la bdd? mais si elle existe
          * déjà, je n'arrive pas à comprendre pourquoi lui créer une séquence, y a un truc que je ne saisis pas. Une séquence n'est
          * elle pas créée ou updatée à chaque fois qu'une nouvelle écriture comptable est insérée dans la table.
-         * Donc pour lui générer sa référence, il faut compter le nb de ligne qu'il y a dans la table et incrémenter de 1
+         *
+         * Pour générer une référence, il faut compter le nb de ligne qu'il y a dans la table et incrémenter de 1
          * cette valeur qui correspondra au numéro de séquence de la ref?
          * */
     }
@@ -264,15 +265,15 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     /**
      * Search a sequenceEcritureCompatble in fucntion the year and the journalCode
      * @param ecritureYear year of the ecriture comptable.
-     * @param journalCode the journal code of the ecriture comptable.
+     * @param ecritureComptable
      * @return the retrieved sequenceEcritureComptable
      */
-    protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, String journalCode) {
+    protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, EcritureComptable ecritureComptable) {
         SequenceEcritureComptable retrievedSeqEcritureComptable;
         try {
                 retrievedSeqEcritureComptable = getDaoProxy()
                         .getComptabiliteDao()
-                        .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
+                        .getSeqEcritureComptableByJCodeAndYear(ecritureYear, ecritureComptable);
 
         } catch (NotFoundException e) {
             retrievedSeqEcritureComptable = null;
