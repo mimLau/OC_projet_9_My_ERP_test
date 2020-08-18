@@ -88,11 +88,11 @@ public interface ComptabiliteDao {
      * pour l'année d'écriutre {@code année }
      *
      * @param ecritureYear l'année d'écriture du jounal code
-     * @param  journalCode code du journal_code
+     * @param  ecritureComptable
      * @return {@link SequenceEcritureComptable}
      * @throws NotFoundException : Si la séquence de l'écriture comptable n'a pas été trouvée
      */
-    SequenceEcritureComptable  getSeqEcritureComptableByJCodeAndYear(Integer ecritureYear, String journalCode) throws NotFoundException;
+    SequenceEcritureComptable  getSeqEcritureComptableByJCodeAndYear(Integer ecritureYear, EcritureComptable ecritureComptable) throws NotFoundException;
 
     /**
      * Met à jour la séquence d'écriture comptable.
