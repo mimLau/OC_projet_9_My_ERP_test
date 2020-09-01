@@ -111,6 +111,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         int incrementedDerniereValeur = seqEcritureComptable.getDerniereValeur();
         // Mettre à jour la référence de l'écritureComptable
         String updatedReference = journalCode + "-" + ecritureYear + "/" +  referenceCodeFormat.format(incrementedDerniereValeur);
+        pEcritureComptable.setReference(updatedReference);
 
     }
 
