@@ -62,21 +62,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     @Override
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
 
-        //TODO   Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
-
-        // Bien se réferer à la JavaDoc de cette méthode !
-        /* Le principe :
-                1.  Remonter depuis la persitance la dernière valeur de la séquence du journal pour l'année de l'écriture
-                    (table sequence_ecriture_comptable)
-                2.  * S'il n'y a aucun enregistrement pour le journal pour l'année concernée :
-                        1. Utiliser le numéro 1.
-                    * Sinon :
-                        1. Utiliser la dernière valeur + 1
-                3.  Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
-                4.  Enregistrer (insert/update) la valeur de la séquence en persistance
-                    (table sequence_ecriture_comptable)
-         */
-
         //Récupération du code du journal_code de pEcritureComptable
         String journalCode =  pEcritureComptable.getJournal().getCode();
 
@@ -112,7 +97,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         // Mettre à jour la référence de l'écritureComptable
         String updatedReference = journalCode + "-" + ecritureYear + "/" +  referenceCodeFormat.format(incrementedDerniereValeur);
         pEcritureComptable.setReference(updatedReference);
-
     }
 
     /**
