@@ -123,37 +123,16 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
         if (!vViolations.isEmpty()) {
             throw new FunctionalException("L'écriture comptable ne respecte pas les règles de gestion.",
-                                          new ConstraintViolationException(
-                                              "L'écriture comptable ne respecte pas les contraintes de validation",
-                                              vViolations));
+                    new ConstraintViolationException(
+                            "L'écriture comptable ne respecte pas les contraintes de validation",
+                            vViolations));
         }
 
         // ===== RG_Compta_2 : Pour qu'une écriture comptable soit valide, elle doit être équilibrée
-        if (!pEcritureComptable.isEquilibree()) {
-            throw new FunctionalException("L'écriture comptable n'est pas équilibrée.");
-        }
+        checkEcritureComptableUnit_RG2(pEcritureComptable);
 
         // ===== RG_Compta_3 : une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
-        int vNbrCredit = 0;
-        int vNbrDebit = 0;
-        for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
-            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getCredit(),
-                                                                    BigDecimal.ZERO)) != 0) {
-                vNbrCredit++;
-            }
-            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getDebit(),
-                                                                    BigDecimal.ZERO)) != 0) {
-                vNbrDebit++;
-            }
-        }
-        // On test le nombre de lignes car si l'écriture à une seule ligne
-        //      avec un montant au débit et un montant au crédit ce n'est pas valable
-        if (pEcritureComptable.getListLigneEcriture().size() < 2
-            || vNbrCredit < 1
-            || vNbrDebit < 1) {
-            throw new FunctionalException(
-                "L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
-        }
+        checkEcritureComptableUnit_RG3(pEcritureComptable);
 
         // TODO ===== RG_Compta_5 : Format et contenu de la référence
         // vérifier que l'année dans la référence correspond bien à la date de l'écriture, idem pour le code journal...
@@ -281,6 +260,40 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         } finally {
             getTransactionManager().rollbackMyERP(vTS);
         }
+    }
+
+    protected void checkEcritureComptableUnit_RG2(EcritureComptable pEcritureComptable) throws FunctionalException {
+        if (!pEcritureComptable.isEquilibree()) {
+            throw new FunctionalException("L'écriture comptable n'est pas équilibrée.");
+        }
+    }
+
+    protected void checkEcritureComptableUnit_RG3(EcritureComptable pEcritureComptable) throws FunctionalException {
+        int vNbrCredit = 0;
+        int vNbrDebit = 0;
+        for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
+            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getCredit(),
+                    BigDecimal.ZERO)) != 0) {
+                vNbrCredit++;
+            }
+            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getDebit(),
+                    BigDecimal.ZERO)) != 0) {
+                vNbrDebit++;
+            }
+        }
+        // On test le nombre de lignes car si l'écriture à une seule ligne
+        //      avec un montant au débit et un montant au crédit ce n'est pas valable
+        if (pEcritureComptable.getListLigneEcriture().size() < 2
+                || vNbrCredit < 1
+                || vNbrDebit < 1) {
+            throw new FunctionalException(
+                    "L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
+        }
+    }
+
+
+    protected void checkEcritureComptableUnit_RG5(EcritureComptable pEcritureComptable) throws FunctionalException {
+
     }
 
 
