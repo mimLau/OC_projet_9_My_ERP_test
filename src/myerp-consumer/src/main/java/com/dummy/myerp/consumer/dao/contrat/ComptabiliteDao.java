@@ -5,6 +5,7 @@ import java.util.List;
 import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
 import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
 import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
+import com.dummy.myerp.model.bean.comptabilite.SequenceEcritureComptable;
 import com.dummy.myerp.technical.exception.NotFoundException;
 
 
@@ -15,6 +16,7 @@ public interface ComptabiliteDao {
 
     /**
      * Renvoie la liste des Comptes Comptables
+     *
      * @return {@link List}
      */
     List<CompteComptable> getListCompteComptable();
@@ -22,6 +24,7 @@ public interface ComptabiliteDao {
 
     /**
      * Renvoie la liste des Journaux Comptables
+     *
      * @return {@link List}
      */
     List<JournalComptable> getListJournalComptable();
@@ -31,6 +34,7 @@ public interface ComptabiliteDao {
 
     /**
      * Renvoie la liste des Écritures Comptables
+     *
      * @return {@link List}
      */
     List<EcritureComptable> getListEcritureComptable();
@@ -80,4 +84,32 @@ public interface ComptabiliteDao {
      * @param pId l'id de l'écriture
      */
     void deleteEcritureComptable(Integer pId);
+
+
+    /**
+     * Renvoie la sequence de l'écriture comptable du jounal_code {@code jCode}
+     * pour l'année d'écriutre {@code année }
+     *
+     * @param ecritureYear l'année d'écriture du jounal code
+     * @param journalCode  code du journal_code
+     * @return {@link SequenceEcritureComptable}
+     * @throws NotFoundException : Si la séquence de l'écriture comptable n'a pas été trouvée
+     */
+    SequenceEcritureComptable getSeqEcritureComptableByJCodeAndYear(Integer ecritureYear, String journalCode) throws NotFoundException;
+
+    /**
+     * Met à jour la séquence d'écriture comptable.
+     *
+     * @param sequenceEcritureComptable
+     */
+    void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
+
+    /**
+     * Insérer une séquence d'écriture comptable.
+     *
+     * @param sequenceEcritureComptable
+     */
+    void insertSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
+
 }
+
