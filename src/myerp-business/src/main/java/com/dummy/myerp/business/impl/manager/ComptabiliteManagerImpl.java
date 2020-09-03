@@ -305,7 +305,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
 
             //Récupération de l'année de l'écriture comptable depuis la référence
-            String refYear = String.valueOf(Integer.parseInt(splitedRef[1]));
+            String refYear = splitedRef[1];
             //Récupération du journal_code depuis la référence
             String jcodeRef = splitedRef[0];
             //Récupération du code de la référence
