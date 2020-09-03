@@ -6,10 +6,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import com.dummy.myerp.model.bean.comptabilite.*;
+import com.dummy.myerp.technical.util.DateUtility;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.TransactionStatus;
@@ -67,9 +69,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
         //Récupération de la date de pEcritureComptable puis extraire l'année d'écriture
         Date date = pEcritureComptable.getDate();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        Integer ecritureYear = calendar.get(Calendar.YEAR);
+        Integer ecritureYear = DateUtility.convertToCalender(date).get(Calendar.YEAR);
 
         //Récupération de la séquence correpondante au journalcode donnée et à l'année d'écriture.
         SequenceEcritureComptable seqEcritureComptable = this.getSequenceEcritureComptable(ecritureYear, journalCode);
@@ -293,7 +293,44 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
 
     protected void checkEcritureComptableUnit_RG5(EcritureComptable pEcritureComptable) throws FunctionalException {
+        // TODO ===== RG_Compta_5 : Format et contenu de la référence
 
+        //Récupération de la référence, du journal code et de l'année de l'écriture comptable
+        String reference =  pEcritureComptable.getReference();
+        String ecritureJCode = pEcritureComptable.getJournal().getCode();
+        Date date = pEcritureComptable.getDate();
+        Integer ecritureYear = DateUtility.convertToCalender(date).get(Calendar.YEAR);
+
+        String [] splitedRef = reference.split("[-/]");
+
+        //Récupération de l'année de l'écriture comptable depuis la référence
+        Integer refYear = Integer.parseInt(splitedRef[1]);
+        //Récupération du journal_code depuis la référence
+        String journal_code = splitedRef[0];
+        //Récupération du code de la référence
+        String refCode = splitedRef[2];
+
+        //Compare l'année de l'écriture comptable à celle qui est enregistrée dans la référence
+        if(!refYear.equals(ecritureYear)){
+            throw new FunctionalException("L'année de l'écriture comptable est diférente de celle de la référence.");
+        }
+
+        //Compare le code journal de l'écriture comptable à celui qui est enregistré dans la référence
+        if(!journal_code.equals(ecritureJCode)){
+            throw new FunctionalException("Le journal code de l'écriture comptable ne correspond pas à celui de la référence.");
+        }
+
+        //Vérifie si le code de la référence contient bien 5 chiffres
+        Pattern refCodeRegexFormat = Pattern.compile("\\d{5}");
+        if(!refCodeRegexFormat.matcher(refCode).matches()){
+            throw new FunctionalException("Le code de la référence ne respecte pas le format requis de 5 chiffres");
+        }
+
+        //Vérifie si la référence respecte bien le format demandé
+        Pattern refRegexFormat = Pattern.compile("\\d{2}-\\d{4}/\\d{5}");
+        if(!refRegexFormat.matcher(reference).matches()){
+            throw new FunctionalException("La référence ne respecte pas le format requis: xx-AAAA/#####");
+        }
     }
 
 
