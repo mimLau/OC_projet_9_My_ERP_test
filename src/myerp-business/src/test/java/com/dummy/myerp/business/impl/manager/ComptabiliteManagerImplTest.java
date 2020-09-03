@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -143,5 +144,21 @@ public class ComptabiliteManagerImplTest {
         verify(comptabiliteDaoMock).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         verify(comptabiliteDaoMock, times(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         assertThat(incrementedDerniereVal[2]).isEqualTo("00001");
+    }
+
+
+    @Test
+    @Tag("RG5")
+    public void checkRG5_shouldThrowFunctionalException_whenRefCode_isDifferentFrom_ecritureCompatbleCode () {
+
+        // GIVEN
+        ecritureComptable.setReference("BQ-2020/00001");
+
+        // WHEN
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
+
+        // THEN
+        assertThat(exception.getMessage()).isEqualTo("Le journal code de l'écriture comptable ne correspond pas à celui de la référence.");
+
     }
 }
