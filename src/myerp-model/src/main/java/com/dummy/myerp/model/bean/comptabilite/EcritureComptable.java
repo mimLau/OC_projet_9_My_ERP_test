@@ -19,22 +19,21 @@ import org.apache.commons.lang3.StringUtils;
 public class EcritureComptable {
 
     // ==================== Attributs ====================
-    /** The Id. */
     private Integer id;
-    /** Journal comptable */
-    @NotNull private JournalComptable journal;
-    /** The Reference. */
-    @Pattern(regexp = "\\d{1,5}-\\d{4}/\\d{5}")
-    private String reference;
-    /** The Date. */
-    @NotNull private Date date;
 
-    /** The Libelle. */
+    @NotNull
+    private JournalComptable journal;
+
+    @Pattern(regexp = "\\w{2}-\\d{4}/\\d{5}")
+    private String reference;
+
+    @NotNull
+    private Date date;
+
     @NotNull
     @Size(min = 1, max = 200)
     private String libelle;
 
-    /** La liste des lignes d'écriture comptable. */
     @Valid
     @Size(min = 2)
     private final List<LigneEcritureComptable> listLigneEcriture = new ArrayList<>();
