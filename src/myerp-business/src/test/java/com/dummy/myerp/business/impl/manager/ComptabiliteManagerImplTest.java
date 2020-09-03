@@ -74,25 +74,26 @@ public class ComptabiliteManagerImplTest {
         EcritureComptable vEcritureComptable;
         vEcritureComptable = new EcritureComptable();
         comptabiliteManagerImpl.checkEcritureComptableUnit(vEcritureComptable);
-    }
+    }*/
 
-    @Test(expected = FunctionalException.class)
+    @Test
     public void checkEcritureComptableUnitRG2() throws Exception {
-        EcritureComptable vEcritureComptable;
-        vEcritureComptable = new EcritureComptable();
-        vEcritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        vEcritureComptable.setDate(new Date());
-        vEcritureComptable.setLibelle("Libelle");
-        vEcritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                                                                                 null, new BigDecimal(123),
-                                                                                 null));
-        vEcritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2),
-                                                                                 null, null,
-                                                                                 new BigDecimal(1234)));
-        comptabiliteManagerImpl.checkEcritureComptableUnit(vEcritureComptable);
+
+        // Given
+        ecritureComptable.getListLigneEcriture().add(
+                new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
+        ecritureComptable.getListLigneEcriture().add(
+                new LigneEcritureComptable(new CompteComptable(2),null, null, new BigDecimal(1234)));
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG2(ecritureComptable));
+
+        // Assert
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable n'est pas équilibrée.");
     }
 
-    @Test(expected = FunctionalException.class)
+    /*@Test(expected = FunctionalException.class)
     public void checkEcritureComptableUnitRG3() throws Exception {
         EcritureComptable vEcritureComptable;
         vEcritureComptable = new EcritureComptable();
@@ -108,11 +109,12 @@ public class ComptabiliteManagerImplTest {
         comptabiliteManagerImpl.checkEcritureComptableUnit(vEcritureComptable);
     }*/
 
+
     @Test
     @Tag("RG5")
     public void givenEcritureComptable_whenAddReference_thenCodeOfEcritureCompatbleReferenceShouldEqualAtDerniereValPlusOne() throws NotFoundException {
 
-        //Given
+        // Given
         /*when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC"))
                 .thenReturn(new SequenceEcritureComptable(ecritureComptable.getJournal(), 2020, 40));*/
 
