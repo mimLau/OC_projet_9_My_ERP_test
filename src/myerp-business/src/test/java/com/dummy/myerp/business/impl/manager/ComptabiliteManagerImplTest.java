@@ -8,6 +8,7 @@ import com.dummy.myerp.consumer.dao.contrat.DaoProxy;
 import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
+import com.dummy.myerp.technical.util.DateUtility;
 import org.junit.Before;
 //import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,10 +157,13 @@ public class ComptabiliteManagerImplTest {
         ecritureComptable.setReference("BQ-2020/00001");
 
         // WHEN
-        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage()).isEqualTo("Le journal code de l'écriture comptable ne correspond pas à celui de la référence.");
+        assertThat(exception.getMessage()).isEqualTo(String.format(
+                "Le journal code de l'écriture comptable (%s) ne correspond pas à celui de la référence (%s).",
+                ecritureComptable.getJournal().getCode(), ecritureComptable.getReference().split("[-/]")[0]));
     }
 
     @Test
@@ -169,10 +174,13 @@ public class ComptabiliteManagerImplTest {
         ecritureComptable.setReference("AC-2019/00001");
 
         // WHEN
-        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage()).isEqualTo("L'année de l'écriture comptable est diférente de celle de la référence.");
+        assertThat(exception.getMessage()).isEqualTo(String.format(
+                "L'année de l'écriture comptable (%s) est diférente de celle de la référence (%s).",
+                DateUtility.convertToCalender(ecritureComptable.getDate()).get(Calendar.YEAR), ecritureComptable.getReference().split("[-/]")[1]));
     }
 
     @Test
@@ -180,12 +188,14 @@ public class ComptabiliteManagerImplTest {
     public void checkRG5_shouldThrowFunctionalException_whenRef_doesntMatchRequiredFormat () {
 
         // GIVEN
-        ecritureComptable.setReference("AC-2020-00001");
+        ecritureComptable.setReference("AC-2020l-00001");
 
         // WHEN
-        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage()).isEqualTo("La référence ne respecte pas le format requis: xx-AAAA/#####.");
+        assertThat(exception.getMessage()).isEqualTo(String.format(
+                "La référence (%s) ne respecte pas le format requis: xx-AAAA/#####.", ecritureComptable.getReference()));
     }
 }
