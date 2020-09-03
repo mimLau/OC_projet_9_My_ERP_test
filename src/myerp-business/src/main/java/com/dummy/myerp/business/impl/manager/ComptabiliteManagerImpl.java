@@ -273,6 +273,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }
     }
 
+    /**
+     * Check if the ecriture comptable has 2 writing lines. One debit and the second credit.
+     * @param pEcritureComptable
+     * @throws FunctionalException
+     */
     protected void checkEcritureComptableUnit_RG3(EcritureComptable pEcritureComptable) throws FunctionalException {
         int vNbrCredit = 0;
         int vNbrDebit = 0;

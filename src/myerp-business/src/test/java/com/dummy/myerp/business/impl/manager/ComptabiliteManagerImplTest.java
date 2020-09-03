@@ -77,7 +77,7 @@ public class ComptabiliteManagerImplTest {
     }*/
 
     @Test
-    public void checkEcritureComptableUnitRG2() throws Exception {
+    public void checkEcritureComptableUnitRG2() {
 
         // Given
         ecritureComptable.getListLigneEcriture().add(
@@ -93,21 +93,23 @@ public class ComptabiliteManagerImplTest {
         assertThat(exception.getMessage()).isEqualTo("L'écriture comptable n'est pas équilibrée.");
     }
 
-    /*@Test(expected = FunctionalException.class)
-    public void checkEcritureComptableUnitRG3() throws Exception {
-        EcritureComptable vEcritureComptable;
-        vEcritureComptable = new EcritureComptable();
-        vEcritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        vEcritureComptable.setDate(new Date());
-        vEcritureComptable.setLibelle("Libelle");
-        vEcritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                                                                                 null, new BigDecimal(123),
-                                                                                 null));
-        vEcritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                                                                                 null, new BigDecimal(123),
-                                                                                 null));
-        comptabiliteManagerImpl.checkEcritureComptableUnit(vEcritureComptable);
-    }*/
+    @Test
+    public void checkEcritureComptableUnitRG3() {
+
+        // Given
+        ecritureComptable.getListLigneEcriture().add(
+                new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
+        ecritureComptable.getListLigneEcriture().add(
+                new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG3(ecritureComptable));
+
+        // Assert
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
+
+    }
 
 
     @Test
