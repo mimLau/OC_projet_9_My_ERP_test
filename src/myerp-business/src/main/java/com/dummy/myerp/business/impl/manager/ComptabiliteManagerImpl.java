@@ -307,30 +307,30 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             //Récupération de l'année de l'écriture comptable depuis la référence
             Integer refYear = Integer.parseInt(splitedRef[1]);
             //Récupération du journal_code depuis la référence
-            String journal_code = splitedRef[0];
+            String jcodeRef = splitedRef[0];
             //Récupération du code de la référence
             String refCode = splitedRef[2];
 
             //Vérifie que l'année dans la référence correspond à l'année de l'écriture comptable
             if (!refYear.equals(ecritureYear)) {
-                throw new FunctionalException("L'année de l'écriture comptable est diférente de celle de la référence.");
+                throw new FunctionalException(String.format("L'année de l'écriture comptable (%s) est diférente de celle de la référence (%s).", ecritureYear, refYear));
             }
 
             //Vérifie que le code journal dans la référence correspond à celui de l'écriture comptable
-            if (!journal_code.equals(ecritureJCode)) {
-                throw new FunctionalException("Le journal code de l'écriture comptable ne correspond pas à celui de la référence.");
+            if (!jcodeRef.equals(ecritureJCode)) {
+                throw new FunctionalException(String.format("Le journal code de l'écriture comptable (%s) ne correspond pas à celui de la référence (%s).", ecritureJCode, jcodeRef ));
             }
 
             //Vérifie si le code de la référence contient bien 5 chiffres
             Pattern refCodeRegexFormat = Pattern.compile("\\d{5}");
             if (!refCodeRegexFormat.matcher(refCode).matches()) {
-                throw new FunctionalException("Le code de la référence ne respecte pas le format requis de 5 chiffres");
+                throw new FunctionalException(String.format("Le code (%s) de la référence ne respecte pas le format requis de 5 chiffres", refCode ));
             }
 
             //Vérifie si la référence respecte bien le format demandé
             Pattern refRegexFormat = Pattern.compile("\\d{2}-\\d{4}/\\d{5}");
             if (!refRegexFormat.matcher(reference).matches()) {
-                throw new FunctionalException("La référence ne respecte pas le format requis: xx-AAAA/#####");
+                throw new FunctionalException(String.format("La référence (%s) ne respecte pas le format requis: xx-AAAA/#####", reference));
             }
 
         } else {
