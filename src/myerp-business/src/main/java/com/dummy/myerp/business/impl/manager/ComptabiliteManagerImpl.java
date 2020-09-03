@@ -328,7 +328,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             }
 
             //Vérifie si la référence respecte bien le format demandé
-            Pattern refRegexFormat = Pattern.compile("\\d{2}-\\d{4}/\\d{5}");
+            Pattern refRegexFormat = Pattern.compile("\\w{2}-\\d{4}/\\d{5}");
             if (!refRegexFormat.matcher(reference).matches()) {
                 throw new FunctionalException(String.format("La référence (%s) ne respecte pas le format requis: xx-AAAA/#####", reference));
             }
