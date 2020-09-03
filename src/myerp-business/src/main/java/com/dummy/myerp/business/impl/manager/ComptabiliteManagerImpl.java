@@ -134,8 +134,8 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         // ===== RG_Compta_3 : une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
         checkEcritureComptableUnit_RG3(pEcritureComptable);
 
-        // TODO ===== RG_Compta_5 : Format et contenu de la référence
-        // vérifier que l'année dans la référence correspond bien à la date de l'écriture, idem pour le code journal...
+        // ===== RG_Compta_5 : la référence d'une écriture compatble doit respecter un format bien précis, et doit contnenir le bon journal code et la bonne date d'écriutre
+        checkEcritureComptableUnit_RG3(pEcritureComptable);
     }
 
 
@@ -291,7 +291,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }
     }
 
-
+    /**
+     * Vérifie le format et le contenu de la référence d'une ecriture journal
+     * @param pEcritureComptable
+     * @throws FunctionalException
+     */
     protected void checkEcritureComptableUnit_RG5(EcritureComptable pEcritureComptable) throws FunctionalException {
 
         if (pEcritureComptable.getReference() != null) {
