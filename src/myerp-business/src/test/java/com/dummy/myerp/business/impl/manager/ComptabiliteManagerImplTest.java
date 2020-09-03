@@ -159,6 +159,33 @@ public class ComptabiliteManagerImplTest {
 
         // THEN
         assertThat(exception.getMessage()).isEqualTo("Le journal code de l'écriture comptable ne correspond pas à celui de la référence.");
+    }
 
+    @Test
+    @Tag("RG5")
+    public void checkRG5_shouldThrowFunctionalException_whenYearInRef_isDifferentFrom_ecritureCompatbleYear () {
+
+        // GIVEN
+        ecritureComptable.setReference("AC-2019/00001");
+
+        // WHEN
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
+
+        // THEN
+        assertThat(exception.getMessage()).isEqualTo("L'année de l'écriture comptable est diférente de celle de la référence.");
+    }
+
+    @Test
+    @Tag("RG5")
+    public void checkRG5_shouldThrowFunctionalException_whenRef_doesntMatchRequiredFormat () {
+
+        // GIVEN
+        ecritureComptable.setReference("AC-2020-00001");
+
+        // WHEN
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG5(ecritureComptable));
+
+        // THEN
+        assertThat(exception.getMessage()).isEqualTo("La référence ne respecte pas le format requis: xx-AAAA/#####.");
     }
 }
