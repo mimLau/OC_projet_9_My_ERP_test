@@ -9,8 +9,7 @@ import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
 import com.dummy.myerp.technical.util.DateUtility;
-import org.junit.Before;
-//import org.junit.Test;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -20,9 +19,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
+import static java.sql.Date.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -48,10 +49,15 @@ public class ComptabiliteManagerImplTest {
     @BeforeEach
     public void init(){
         ecritureComptable = new EcritureComptable();
+        ecritureComptable.setId(1);
+        ecritureComptable.setLibelle("Libelle");
         ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setDate(new Date());
-    }
+        ecritureComptable.setReference("AC-2020/00042");
 
+        LocalDate localDate = LocalDate.of(2020, 10, 22);
+        Date date = valueOf(localDate);
+        ecritureComptable.setDate(date);
+    }
 
     @Test
     public void checkEcritureComptableUnit() throws Exception {
@@ -61,11 +67,11 @@ public class ComptabiliteManagerImplTest {
         vEcritureComptable.setDate(new Date());
         vEcritureComptable.setLibelle("Libelle");
         vEcritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                                                                                 null, new BigDecimal(123),
-                                                                                 null));
+                null, new BigDecimal(123),
+                null));
         vEcritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2),
-                                                                                 null, null,
-                                                                                 new BigDecimal(123)));
+                null, null,
+                new BigDecimal(123)));
         comptabiliteManagerImpl.checkEcritureComptableUnit(vEcritureComptable);
     }
 
@@ -111,13 +117,13 @@ public class ComptabiliteManagerImplTest {
 
     }
 
-
     @Test
     @Tag("RG5")
     public void givenEcritureComptable_whenAddReference_thenCodeOfEcritureCompatbleReferenceShouldEqualAtDerniereValPlusOne() throws NotFoundException {
 
         // Given
-        /*when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC"))
+        /*Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC"))
                 .thenReturn(new SequenceEcritureComptable(ecritureComptable.getJournal(), 2020, 40));*/
 
         Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
@@ -129,8 +135,8 @@ public class ComptabiliteManagerImplTest {
         String[] incrementedDerniereVal = ecritureComptable.getReference().split("[-/]");
 
         // THEN
-        verify(daoProxyMock).getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC");
-        verify(daoProxyMock.getComptabiliteDao(), times(2)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        verify(daoProxyMock.getComptabiliteDao(), times(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         assertThat(incrementedDerniereVal[2]).isEqualTo("00041");
     }
 
@@ -155,7 +161,7 @@ public class ComptabiliteManagerImplTest {
 
     @Test
     @Tag("RG5")
-    public void checkRG5_shouldThrowFunctionalException_whenRefCode_isDifferentFrom_ecritureCompatbleCode () {
+    public void  givenEcritureComptableWithRefWithCodeDifferentFromJournalCode_whenCheckEcritureComptableUnit_RG5_thenThrowFunctionalException () {
 
         // GIVEN
         ecritureComptable.setReference("BQ-2020/00001");
@@ -172,7 +178,7 @@ public class ComptabiliteManagerImplTest {
 
     @Test
     @Tag("RG5")
-    public void checkRG5_shouldThrowFunctionalException_whenYearInRef_isDifferentFrom_ecritureCompatbleYear () {
+    public void givenEcritureCompatableWithRefWithYearDifferentFromYearInBdd_whenCheckEcritureComptableUnit_RG5_thenThrowFunctionalException () {
 
         // GIVEN
         ecritureComptable.setReference("AC-2019/00001");
@@ -189,7 +195,7 @@ public class ComptabiliteManagerImplTest {
 
     @Test
     @Tag("RG5")
-    public void checkRG5_shouldThrowFunctionalException_whenRef_doesntMatchRequiredFormat () {
+    public void givenEcritureComptableWithRefWithBadFormat_whenCheckEcritureComptableUnit_RG5_thenThrowFunctionalException () {
 
         // GIVEN
         ecritureComptable.setReference("AC-2020l-00001");
@@ -201,5 +207,25 @@ public class ComptabiliteManagerImplTest {
         // THEN
         assertThat(exception.getMessage()).isEqualTo(String.format(
                 "La référence (%s) ne respecte pas le format requis: xx-AAAA/#####.", ecritureComptable.getReference()));
+    }
+
+    @Test
+    @Tag("RG6")
+    public void givenEcritureComptableWhichRefAlreadyExistsInBdd_whenCheckEcritureComptableContext_thenThrowFunctionalException() throws NotFoundException {
+
+        // GIVEN
+        EcritureComptable returnedEcritureComptable = new EcritureComptable();
+        returnedEcritureComptable.setReference("AC-2020/00042");
+        returnedEcritureComptable.setId(ecritureComptable.getId() + 1);
+
+        Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getEcritureComptableByRef(ecritureComptable.getReference())).thenReturn(returnedEcritureComptable);
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableContext(ecritureComptable));
+
+        // THEN
+        assertThat(exception.getMessage()).isEqualTo("Une autre écriture comptable existe déjà avec la même référence.");
     }
 }
