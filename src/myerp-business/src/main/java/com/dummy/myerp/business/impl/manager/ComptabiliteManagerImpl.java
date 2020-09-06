@@ -105,7 +105,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     // TODO à tester
     @Override
     public void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
-        this.checkEcritureComptableConstraintViolation(pEcritureComptable);
+        this.checkEcritureComptableUnitViolation(pEcritureComptable);
         this.checkEcritureComptableContext(pEcritureComptable);
     }
 
@@ -117,8 +117,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable -
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
-    // TODO tests à compléter
-    protected void checkEcritureComptableConstraintViolation(EcritureComptable pEcritureComptable) throws FunctionalException {
+    protected void checkEcritureComptableUnitViolation(EcritureComptable pEcritureComptable) throws FunctionalException {
         // ===== Vérification des contraintes unitaires sur les attributs de l'écriture
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
         if (!vViolations.isEmpty()) {
@@ -129,6 +128,98 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }
     }
 
+    /**
+     * Check if ecriture comptable is equilibre
+     * @param pEcritureComptable
+     * @throws FunctionalException
+     */
+    // ===== RG_Compta_2 : Pour qu'une écriture comptable soit valide, elle doit être équilibrée
+    protected void checkEcritureComptableUnit_RG2(EcritureComptable pEcritureComptable) throws FunctionalException {
+        if (!pEcritureComptable.isEquilibree()) {
+            throw new FunctionalException("L'écriture comptable n'est pas équilibrée.");
+        }
+    }
+
+    /**
+     * Check if the ecriture comptable has 2 writing lines. One debit and the second credit.
+     * @param pEcritureComptable
+     * @throws FunctionalException
+     */
+    // ===== RG_Compta_3 : une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
+    protected void checkEcritureComptableUnit_RG3(EcritureComptable pEcritureComptable) throws FunctionalException {
+        int vNbrCredit = 0;
+        int vNbrDebit = 0;
+        for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
+            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getCredit(),
+                    BigDecimal.ZERO)) != 0) {
+                vNbrCredit++;
+            }
+            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getDebit(),
+                    BigDecimal.ZERO)) != 0) {
+                vNbrDebit++;
+            }
+        }
+        // On test le nombre de lignes car si l'écriture à une seule ligne
+        //      avec un montant au débit et un montant au crédit ce n'est pas valable
+        if (pEcritureComptable.getListLigneEcriture().size() < 2
+                || vNbrCredit < 1
+                || vNbrDebit < 1) {
+            throw new FunctionalException(
+                    "L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
+        }
+    }
+
+    /**
+     * Vérifie le format et le contenu de la référence d'une ecriture journal
+     * @param pEcritureComptable
+     * @throws FunctionalException
+     */
+    // ===== RG_Compta_5 : la référence d'une écriture compatble doit respecter un format bien précis, et doit contnenir le bon journal code et la bonne date d'écriutre
+    protected void checkEcritureComptableUnit_RG5(EcritureComptable pEcritureComptable) throws FunctionalException {
+
+        if (pEcritureComptable.getReference() != null) {
+
+            //Récupération de la référence, du journal code et de l'année de l'écriture comptable
+            String reference =  pEcritureComptable.getReference();
+            String ecritureJCode = pEcritureComptable.getJournal().getCode();
+            Date date = pEcritureComptable.getDate();
+            String ecritureYear = String.valueOf(DateUtility.convertToCalender(date).get(Calendar.YEAR));
+            String [] splitedRef = reference.split("[-/]");
+
+
+            //Récupération de l'année de l'écriture comptable depuis la référence
+            String refYear = splitedRef[1];
+            //Récupération du journal_code depuis la référence
+            String jcodeRef = splitedRef[0];
+            //Récupération du code de la référence
+            String refCode = splitedRef[2];
+
+            //Vérifie si la référence respecte bien le format demandé
+            Pattern refRegexFormat = Pattern.compile("\\w{2}-\\d{4}/\\d{5}");
+            if (!refRegexFormat.matcher(reference).matches()) {
+                throw new FunctionalException(String.format("La référence (%s) ne respecte pas le format requis: xx-AAAA/#####.", reference));
+            }
+
+            //Vérifie que le code journal dans la référence correspond à celui de l'écriture comptable
+            if (!jcodeRef.equals(ecritureJCode)) {
+                throw new FunctionalException(String.format("Le journal code de l'écriture comptable (%s) ne correspond pas à celui de la référence (%s).", ecritureJCode, jcodeRef ));
+            }
+
+            //Vérifie que l'année dans la référence correspond à l'année de l'écriture comptable
+            if (!refYear.equals(ecritureYear)) {
+                throw new FunctionalException(String.format("L'année de l'écriture comptable (%s) est diférente de celle de la référence (%s).", ecritureYear, refYear));
+            }
+
+            //Vérifie si le code de la référence contient bien 5 chiffres
+            Pattern refCodeRegexFormat = Pattern.compile("\\d{5}");
+            if (!refCodeRegexFormat.matcher(refCode).matches()) {
+                throw new FunctionalException(String.format("Le code (%s) de la référence ne respecte pas le format requis de 5 chiffres.", refCode ));
+            }
+
+        } else {
+            throw new FunctionalException("La référence de l'écriture comptable est null!!");
+        }
+    }
 
     /**
      * Vérifie que l'Ecriture comptable respecte les règles de gestion liées au contexte
@@ -252,99 +343,4 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             getTransactionManager().rollbackMyERP(vTS);
         }
     }
-
-    /**
-     * Check if ecriture comptable is equilibre
-     * @param pEcritureComptable
-     * @throws FunctionalException
-     */
-    // ===== RG_Compta_2 : Pour qu'une écriture comptable soit valide, elle doit être équilibrée
-    protected void checkEcritureComptableUnit_RG2(EcritureComptable pEcritureComptable) throws FunctionalException {
-        if (!pEcritureComptable.isEquilibree()) {
-            throw new FunctionalException("L'écriture comptable n'est pas équilibrée.");
-        }
-    }
-
-    /**
-     * Check if the ecriture comptable has 2 writing lines. One debit and the second credit.
-     * @param pEcritureComptable
-     * @throws FunctionalException
-     */
-    // ===== RG_Compta_3 : une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
-    protected void checkEcritureComptableUnit_RG3(EcritureComptable pEcritureComptable) throws FunctionalException {
-        int vNbrCredit = 0;
-        int vNbrDebit = 0;
-        for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
-            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getCredit(),
-                    BigDecimal.ZERO)) != 0) {
-                vNbrCredit++;
-            }
-            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getDebit(),
-                    BigDecimal.ZERO)) != 0) {
-                vNbrDebit++;
-            }
-        }
-        // On test le nombre de lignes car si l'écriture à une seule ligne
-        //      avec un montant au débit et un montant au crédit ce n'est pas valable
-        if (pEcritureComptable.getListLigneEcriture().size() < 2
-                || vNbrCredit < 1
-                || vNbrDebit < 1) {
-            throw new FunctionalException(
-                    "L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
-        }
-    }
-
-    /**
-     * Vérifie le format et le contenu de la référence d'une ecriture journal
-     * @param pEcritureComptable
-     * @throws FunctionalException
-     */
-    // ===== RG_Compta_5 : la référence d'une écriture compatble doit respecter un format bien précis, et doit contnenir le bon journal code et la bonne date d'écriutre
-    protected void checkEcritureComptableUnit_RG5(EcritureComptable pEcritureComptable) throws FunctionalException {
-
-        if (pEcritureComptable.getReference() != null) {
-
-            //Récupération de la référence, du journal code et de l'année de l'écriture comptable
-            String reference =  pEcritureComptable.getReference();
-            String ecritureJCode = pEcritureComptable.getJournal().getCode();
-            Date date = pEcritureComptable.getDate();
-            String ecritureYear = String.valueOf(DateUtility.convertToCalender(date).get(Calendar.YEAR));
-            String [] splitedRef = reference.split("[-/]");
-
-
-            //Récupération de l'année de l'écriture comptable depuis la référence
-            String refYear = splitedRef[1];
-            //Récupération du journal_code depuis la référence
-            String jcodeRef = splitedRef[0];
-            //Récupération du code de la référence
-            String refCode = splitedRef[2];
-
-            //Vérifie si la référence respecte bien le format demandé
-            Pattern refRegexFormat = Pattern.compile("\\w{2}-\\d{4}/\\d{5}");
-            if (!refRegexFormat.matcher(reference).matches()) {
-                throw new FunctionalException(String.format("La référence (%s) ne respecte pas le format requis: xx-AAAA/#####.", reference));
-            }
-
-            //Vérifie que le code journal dans la référence correspond à celui de l'écriture comptable
-            if (!jcodeRef.equals(ecritureJCode)) {
-                throw new FunctionalException(String.format("Le journal code de l'écriture comptable (%s) ne correspond pas à celui de la référence (%s).", ecritureJCode, jcodeRef ));
-            }
-
-            //Vérifie que l'année dans la référence correspond à l'année de l'écriture comptable
-            if (!refYear.equals(ecritureYear)) {
-                throw new FunctionalException(String.format("L'année de l'écriture comptable (%s) est diférente de celle de la référence (%s).", ecritureYear, refYear));
-            }
-
-            //Vérifie si le code de la référence contient bien 5 chiffres
-            Pattern refCodeRegexFormat = Pattern.compile("\\d{5}");
-            if (!refCodeRegexFormat.matcher(refCode).matches()) {
-                throw new FunctionalException(String.format("Le code (%s) de la référence ne respecte pas le format requis de 5 chiffres.", refCode ));
-            }
-
-        } else {
-            throw new FunctionalException("La référence de l'écriture comptable est null!!");
-        }
-    }
-
-
 }
