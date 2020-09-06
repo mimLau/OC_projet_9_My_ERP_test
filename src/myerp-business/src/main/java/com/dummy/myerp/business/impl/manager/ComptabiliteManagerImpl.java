@@ -105,7 +105,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     // TODO à tester
     @Override
     public void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
-        this.checkEcritureComptableUnit(pEcritureComptable);
+        this.checkEcritureComptableConstraintViolation(pEcritureComptable);
         this.checkEcritureComptableContext(pEcritureComptable);
     }
 
@@ -118,7 +118,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
     // TODO tests à compléter
-    protected void checkEcritureComptableUnit(EcritureComptable pEcritureComptable) throws FunctionalException {
+    protected void checkEcritureComptableConstraintViolation(EcritureComptable pEcritureComptable) throws FunctionalException {
         // ===== Vérification des contraintes unitaires sur les attributs de l'écriture
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
         if (!vViolations.isEmpty()) {
@@ -127,15 +127,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                             "L'écriture comptable ne respecte pas les contraintes de validation",
                             vViolations));
         }
-
-        // ===== RG_Compta_2 : Pour qu'une écriture comptable soit valide, elle doit être équilibrée
-        checkEcritureComptableUnit_RG2(pEcritureComptable);
-
-        // ===== RG_Compta_3 : une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
-        checkEcritureComptableUnit_RG3(pEcritureComptable);
-
-        // ===== RG_Compta_5 : la référence d'une écriture compatble doit respecter un format bien précis, et doit contnenir le bon journal code et la bonne date d'écriutre
-        checkEcritureComptableUnit_RG3(pEcritureComptable);
     }
 
 
@@ -146,8 +137,8 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable -
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
+    // ===== RG_Compta_6 : La référence d'une écriture comptable doit être unique
     protected void checkEcritureComptableContext(EcritureComptable pEcritureComptable) throws FunctionalException {
-        // ===== RG_Compta_6 : La référence d'une écriture comptable doit être unique
         if (StringUtils.isNoneEmpty(pEcritureComptable.getReference())) {
             try {
                 // Recherche d'une écriture ayant la même référence
@@ -267,6 +258,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable
      * @throws FunctionalException
      */
+    // ===== RG_Compta_2 : Pour qu'une écriture comptable soit valide, elle doit être équilibrée
     protected void checkEcritureComptableUnit_RG2(EcritureComptable pEcritureComptable) throws FunctionalException {
         if (!pEcritureComptable.isEquilibree()) {
             throw new FunctionalException("L'écriture comptable n'est pas équilibrée.");
@@ -278,6 +270,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable
      * @throws FunctionalException
      */
+    // ===== RG_Compta_3 : une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
     protected void checkEcritureComptableUnit_RG3(EcritureComptable pEcritureComptable) throws FunctionalException {
         int vNbrCredit = 0;
         int vNbrDebit = 0;
@@ -306,6 +299,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable
      * @throws FunctionalException
      */
+    // ===== RG_Compta_5 : la référence d'une écriture compatble doit respecter un format bien précis, et doit contnenir le bon journal code et la bonne date d'écriutre
     protected void checkEcritureComptableUnit_RG5(EcritureComptable pEcritureComptable) throws FunctionalException {
 
         if (pEcritureComptable.getReference() != null) {
