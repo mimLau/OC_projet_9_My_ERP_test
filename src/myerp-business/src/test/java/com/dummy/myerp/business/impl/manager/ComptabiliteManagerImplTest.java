@@ -10,10 +10,7 @@ import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
 import com.dummy.myerp.technical.util.DateUtility;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +23,7 @@ import java.util.Date;
 import static java.sql.Date.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,39 +47,40 @@ public class ComptabiliteManagerImplTest {
     public void init(){
         ecritureComptable = new EcritureComptable();
         ecritureComptable.setId(1);
+        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
+        ecritureComptable.setReference("AC-2020/00042");
+        ecritureComptable.setLibelle("Libelle");
+
+        LocalDate localDate = LocalDate.of(2020, 10, 22);
+        Date date = valueOf(localDate);
+        ecritureComptable.setDate(date);
     }
 
     @Test
     @Tag("ConstraintViolation")
-    public void givenEcritureComptableWithLigneEcritureLessThan2lines_whenCheckEcritureComptableConstraintViolation_thenThrowFunctionalException() throws Exception {
+    @DisplayName("CheckEcritureComptableUnitViolation should throw FunctionalException when lineEcriture less than 2.")
+    public void givenEcritureComptableWithLigneEcritureLessThan2lines_whenCheckEcritureComptableConstraints_thenThrowFunctionalException() throws Exception {
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00042");
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal(123),
                 null));
 
         // WHEN
         FunctionalException exception = assertThrows(
-                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitViolation(ecritureComptable));
+                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitConstraints(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage().equals("L'écriture comptable ne respecte pas les contraintes de validation"));
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable ne respecte pas les contraintes de validation : L'écriture comptable doit avoir au minimum 2 lignes d'écriture comptable: 1 au débit, 1 au crédit.");
     }
 
     @Test
     @Tag("ConstraintViolation")
-    public void givenEcritureCompatbleWithoutDate_whencheckEcritureComptableConstraintViolation_thenThrowFunctionalException(){
+    @DisplayName("CheckEcritureComptableUnitViolation should throw FunctionalException when Date is null.")
+    public void givenEcritureCompatbleWithoutDate_whencheckEcritureComptableConstraints_thenThrowFunctionalException(){
 
         // GIVEN
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00042");
-        ecritureComptable.setLibelle("Libelle");
+        ecritureComptable.setDate(null);
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal(123),
                 null));
@@ -91,24 +90,20 @@ public class ComptabiliteManagerImplTest {
 
         // WHEN
         FunctionalException exception = assertThrows(
-                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitViolation(ecritureComptable));
+                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitConstraints(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage().equals("L'écriture comptable ne respecte pas les contraintes de validation"));
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable ne respecte pas les contraintes de validation : La date ne doit pas être nulle.");
 
     }
 
     @Test
     @Tag("ConstraintViolation")
-    public void givenEcritureCompatbleWithBadFormatOfRef_whencheckEcritureComptableConstraintViolation_thenThrowFunctionalException(){
+    @DisplayName("CheckEcritureComptableUnitViolation should throw FunctionalException when Reference format is bad")
+    public void givenEcritureCompatbleWithBadFormatOfRef_whencheckEcritureComptableConstraints_thenThrowFunctionalException(){
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00042000000");
-        ecritureComptable.setLibelle("Libelle");
+        ecritureComptable.setReference("QS-12234-2345455");
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal(123),
                 null));
@@ -118,22 +113,19 @@ public class ComptabiliteManagerImplTest {
 
         // WHEN
         FunctionalException exception = assertThrows(
-                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitViolation(ecritureComptable));
+                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitConstraints(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage().equals("L'écriture comptable ne respecte pas les contraintes de validation"));
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable ne respecte pas les contraintes de validation : La référence ne respecte pas le format requis.");
     }
 
     @Test
     @Tag("ConstraintViolation")
-    public void givenEcritureCompatbleWithoutJcode_whencheckEcritureComptableConstraintViolation_thenThrowFunctionalException(){
+    @DisplayName("CheckEcritureComptableUnitViolation should throw FunctionalException when Journal code is null")
+    public void givenEcritureCompatbleWithoutJcode_whencheckEcritureComptableConstraints_thenThrowFunctionalException(){
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setReference("AC-2020/00042");
-        ecritureComptable.setLibelle("Libelle");
+        ecritureComptable.setJournal(null);
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal(123),
                 null));
@@ -143,22 +135,18 @@ public class ComptabiliteManagerImplTest {
 
         // WHEN
         FunctionalException exception = assertThrows(
-                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitViolation(ecritureComptable));
+                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitConstraints(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage().equals("L'écriture comptable ne respecte pas les contraintes de validation"));
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable ne respecte pas les contraintes de validation : Le journal comptable ne doit pas être nul.");
     }
 
     @Test
     @Tag("ConstraintViolation")
-    public void givenEcritureCompatbleWithBadLibelleSize_whencheckEcritureComptableConstraintViolation_thenThrowFunctionalException(){
+    @DisplayName("CheckEcritureComptableUnitViolation should throw FunctionalException when libelle is null")
+    public void givenEcritureCompatbleWithBadLibelleSize_whencheckEcritureComptableConstraints_thenThrowFunctionalException(){
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00042");
         ecritureComptable.setLibelle("");
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
                 null, new BigDecimal(123),
@@ -169,15 +157,17 @@ public class ComptabiliteManagerImplTest {
 
         // WHEN
         FunctionalException exception = assertThrows(
-                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitViolation(ecritureComptable));
+                FunctionalException.class, ()-> comptabiliteManagerImpl.checkEcritureComptableUnitConstraints(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage().equals("L'écriture comptable ne respecte pas les contraintes de validation"));
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable ne respecte pas les contraintes de validation : Le libellé doit comporter entre 1 et 200 caractères.");
     }
 
 
     @Test
-    public void checkEcritureComptableUnitRG2() {
+    @Tag("RG2")
+    @DisplayName("CheckEcritureComptableUnit_RG2 should throw FunctionalException when ecriture comptable isn't equilibre.")
+    public void givenEcritureComptableWithNotEquilibreLinesEcriture_whenCheckEcritureComptableUnitRG2_thenThrowFunctionalException() {
 
         // Given
         ecritureComptable.getListLigneEcriture().add(
@@ -194,7 +184,9 @@ public class ComptabiliteManagerImplTest {
     }
 
     @Test
-    public void checkEcritureComptableUnitRG3() {
+    @Tag("RG3")
+    @DisplayName("CheckEcritureComptableUnit_RG3 should throw FunctionalException when ecriture comptable hasn't at least one line ecriture with debit and one with a credit")
+    public void givenEcritureComptableWithLinesEcritureWithoutAnyDebit_whenCheckEcritureComptableUnitRG3_thenThrowFunctionalException() {
 
         // Given
         ecritureComptable.getListLigneEcriture().add(
@@ -211,56 +203,80 @@ public class ComptabiliteManagerImplTest {
     }
 
     @Test
+    @Tag("RG3")
+    @DisplayName("CheckEcritureComptableUnit_RG3 should throw FunctionalException when ecriture comptable hasn't at least one line ecriture with debit and one with a credit")
+    public void givenEcritureComptableWithLinesEcritureWithoutAnyCredit_whenCheckEcritureComptableUnitRG3_thenThrowFunctionalException() {
+
+        // Given
+        ecritureComptable.getListLigneEcriture().add(
+                new LigneEcritureComptable(new CompteComptable(1),null, null, new BigDecimal(123)));
+        ecritureComptable.getListLigneEcriture().add(
+                new LigneEcritureComptable(new CompteComptable(1),null, null ,new BigDecimal(123)));
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG3(ecritureComptable));
+
+        // Assert
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
+    }
+
+    @Test
+    @Tag("RG3")
+    @DisplayName("CheckEcritureComptableUnit_RG3 should throw FunctionalException when ecriture comptable hasn't at least one line ecriture with debit and one with a credit")
+    public void givenEcritureComptableWith1LineEcritureWithOneCreditAndOneDebit_whenCheckEcritureComptableUnitRG3_thenThrowFunctionalException() {
+
+        // Given
+        ecritureComptable.getListLigneEcriture().add(
+                new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123), new BigDecimal(123)));
+
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG3(ecritureComptable));
+
+        // Assert
+        assertThat(exception.getMessage()).isEqualTo("L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
+    }
+
+    @Test
     @Tag("RG5")
+    @DisplayName("Given ecriture comptable at addReference(), if ecriture comptable exists in bdd then added reference should be equal at the derniere value plus one")
     public void givenEcritureComptable_whenAddReference_thenCodeOfEcritureCompatbleReferenceShouldEqualAtDerniereValPlusOne() throws NotFoundException {
 
         // Given
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00042");
-
         Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
         doReturn(new SequenceEcritureComptable(ecritureComptable.getJournal(), 2020, 40))
                 .when(comptabiliteDaoMock).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
-
-        /*Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
-        when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC"))
-                .thenReturn(new SequenceEcritureComptable(ecritureComptable.getJournal(), 2020, 40));*/
 
         // WHEN
         comptabiliteManagerImpl.addReference(ecritureComptable);
         String[] incrementedDerniereVal = ecritureComptable.getReference().split("[-/]");
 
         // THEN
-        verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        //verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         verify(daoProxyMock.getComptabiliteDao(), times(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         assertThat(incrementedDerniereVal[2]).isEqualTo("00041");
     }
 
     @Test
     @Tag("RG5")
+    @DisplayName("Given ecriture comptable at addReference(), if ecriture comptable doesn't exist in bdd then added reference should be equal at one")
     public void givenEcritureComptable_whenAddReference_thenReturnNull_and_codeOfEcritureCompatbleReferenceShouldEqualAtOne() throws NotFoundException {
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00042");
-
         Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
-        doReturn(null).when(comptabiliteDaoMock).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC")).thenReturn(null);
 
         // WHEN
         comptabiliteManagerImpl.addReference(ecritureComptable);
         String[] incrementedDerniereVal = ecritureComptable.getReference().split("[-/]");
 
         // THEN
-        verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        //verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         verify(daoProxyMock.getComptabiliteDao(), times(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         assertThat(incrementedDerniereVal[2]).isEqualTo("00001");
+        then(daoProxyMock.getComptabiliteDao()).should(atLeast(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
     }
 
 
@@ -269,10 +285,6 @@ public class ComptabiliteManagerImplTest {
     public void  givenEcritureComptableWithRefWithCodeDifferentFromJournalCode_whenCheckEcritureComptableUnit_RG5_thenThrowFunctionalException () {
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
         ecritureComptable.setReference("BQ-2020/00001");
 
         // WHEN
@@ -290,11 +302,7 @@ public class ComptabiliteManagerImplTest {
     public void givenEcritureCompatableWithRefWithYearDifferentFromYearInBdd_whenCheckEcritureComptableUnit_RG5_thenThrowFunctionalException () {
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
         ecritureComptable.setReference("AC-2019/00001");
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
 
         // WHEN
         FunctionalException exception = assertThrows(
@@ -311,10 +319,6 @@ public class ComptabiliteManagerImplTest {
     public void givenEcritureComptableWithRefWithBadFormat_whenCheckEcritureComptableUnit_RG5_thenThrowFunctionalException () {
 
         // GIVEN
-        LocalDate localDate = LocalDate.of(2020, 10, 22);
-        Date date = valueOf(localDate);
-        ecritureComptable.setDate(date);
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
         ecritureComptable.setReference("AC-2020l-00001");
 
         // WHEN
@@ -331,9 +335,6 @@ public class ComptabiliteManagerImplTest {
     public void givenEcritureComptableWhichRefAlreadyExistsInBdd_whenCheckEcritureComptableContext_thenThrowFunctionalException() throws NotFoundException {
 
         // GIVEN
-        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00042");
-
         EcritureComptable returnedEcritureComptable = new EcritureComptable();
         returnedEcritureComptable.setReference("AC-2020/00042");
         returnedEcritureComptable.setId(ecritureComptable.getId() + 1);
@@ -343,7 +344,7 @@ public class ComptabiliteManagerImplTest {
 
         // WHEN
         FunctionalException exception = assertThrows(
-                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableContext(ecritureComptable));
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG6(ecritureComptable));
 
         // THEN
         assertThat(exception.getMessage()).isEqualTo("Une autre écriture comptable existe déjà avec la même référence.");

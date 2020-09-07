@@ -105,8 +105,8 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     // TODO à tester
     @Override
     public void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
-        this.checkEcritureComptableUnitViolation(pEcritureComptable);
-        this.checkEcritureComptableContext(pEcritureComptable);
+        this.checkEcritureComptableUnitConstraints(pEcritureComptable);
+        this.checkEcritureComptableUnit_RG6(pEcritureComptable);
     }
 
 
@@ -117,22 +117,30 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable -
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
-    protected void checkEcritureComptableUnitViolation(EcritureComptable pEcritureComptable) throws FunctionalException {
+    protected void checkEcritureComptableUnitConstraints(EcritureComptable pEcritureComptable) throws FunctionalException {
         // ===== Vérification des contraintes unitaires sur les attributs de l'écriture
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
         if (!vViolations.isEmpty()) {
-            throw new FunctionalException("L'écriture comptable ne respecte pas les règles de gestion.",
-                    new ConstraintViolationException(
-                            "L'écriture comptable ne respecte pas les contraintes de validation",
-                            vViolations));
+            String errorMessage = "L'écriture comptable ne respecte pas les contraintes de validation :";
+            for(ConstraintViolation v : vViolations) {
+                errorMessage = errorMessage + " " + v.getMessage();
+            }
+            throw new FunctionalException(errorMessage);
         }
     }
 
-    /**
-     * Check if ecriture comptable is equilibre
-     * @param pEcritureComptable
-     * @throws FunctionalException
-     */
+    // ===== RG_Compta_1 : Le solde d'un compte comptable est égal à la somme des montants au débit des lignes d'écriture
+    // diminuées de la somme des montants au crédit.
+    // Si le résultat est positif, le solde est dit "débiteur", si le résultat est négatif le solde est dit "créditeur".
+    protected void checkEcritureComptableUnit_RG1(EcritureComptable pEcritureComptable) throws FunctionalException {
+
+    }
+
+        /**
+         * Check if ecriture comptable is equilibre
+         * @param pEcritureComptable
+         * @throws FunctionalException
+         */
     // ===== RG_Compta_2 : Pour qu'une écriture comptable soit valide, elle doit être équilibrée
     protected void checkEcritureComptableUnit_RG2(EcritureComptable pEcritureComptable) throws FunctionalException {
         if (!pEcritureComptable.isEquilibree()) {
@@ -169,6 +177,12 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }
     }
 
+    // ===== RG_Compta_4 : Les montants des lignes d'écriture sont signés et peuvent prendre des valeurs négatives (même si cela est peu fréquent).
+    protected void checkEcritureComptableUnit_RG4(EcritureComptable pEcritureComptable) throws FunctionalException {
+
+
+    }
+
     /**
      * Vérifie le format et le contenu de la référence d'une ecriture journal
      * @param pEcritureComptable
@@ -185,7 +199,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             Date date = pEcritureComptable.getDate();
             String ecritureYear = String.valueOf(DateUtility.convertToCalender(date).get(Calendar.YEAR));
             String [] splitedRef = reference.split("[-/]");
-
 
             //Récupération de l'année de l'écriture comptable depuis la référence
             String refYear = splitedRef[1];
@@ -229,7 +242,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
     // ===== RG_Compta_6 : La référence d'une écriture comptable doit être unique
-    protected void checkEcritureComptableContext(EcritureComptable pEcritureComptable) throws FunctionalException {
+    protected void checkEcritureComptableUnit_RG6(EcritureComptable pEcritureComptable) throws FunctionalException {
         if (StringUtils.isNoneEmpty(pEcritureComptable.getReference())) {
             try {
                 // Recherche d'une écriture ayant la même référence
@@ -247,6 +260,12 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 // Dans ce cas, c'est bon, ça veut dire qu'on n'a aucune autre écriture avec la même référence.
             }
         }
+    }
+
+    // ===== RG_Compta_7 : Les montants des lignes d'écritures peuvent comporter 2 chiffres maximum après la virgule.
+    protected void checkEcritureComptableUnit_RG7(EcritureComptable pEcritureComptable) throws FunctionalException {
+
+
     }
 
     /**
@@ -315,7 +334,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     }
 
     /**
-     *  Update a seauenceEcritureComptable
+     *  Update a sequenceEcritureComptable
      * @param sequenceEcritureComptable to be updated
      */
     protected void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
@@ -328,7 +347,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 getTransactionManager().rollbackMyERP(vTS);
         }
     }
-
 
     /**
      *  Insert a new sequenceEcritureComptable
