@@ -344,7 +344,7 @@ public class ComptabiliteManagerImplTest {
 
         // WHEN
         FunctionalException exception = assertThrows(
-                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableContext(ecritureComptable));
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG6(ecritureComptable));
 
         // THEN
         assertThat(exception.getMessage()).isEqualTo("Une autre écriture comptable existe déjà avec la même référence.");
