@@ -21,21 +21,21 @@ public class EcritureComptable {
     // ==================== Attributs ====================
     private Integer id;
 
-    @NotNull
+    @NotNull(message ="Le journal comptable ne doit pas être nul.")
     private JournalComptable journal;
 
-    @Pattern(regexp = "\\w{2}-\\d{4}/\\d{5}")
+    @Pattern(message ="La référence ne respecte pas le format requis.", regexp = "\\w{2}-\\d{4}/\\d{5}")
     private String reference;
 
-    @NotNull
+    @NotNull(message ="La date ne doit pas être nulle.")
     private Date date;
 
-    @NotNull
-    @Size(min = 1, max = 200)
+    @NotNull(message ="Le libellé ne doit pas être nul.")
+    @Size(message = "Le libellé doit comporter entre 1 et 200 caractères.", min = 1, max = 200)
     private String libelle;
 
     @Valid
-    @Size(min = 2)
+    @Size(message = "L'écriture comptable doit avoir au minimum 2 lignes d'écriture comptable: 1 au débit, 1 au crédit.", min = 2)
     private final List<LigneEcritureComptable> listLigneEcriture = new ArrayList<>();
 
 
