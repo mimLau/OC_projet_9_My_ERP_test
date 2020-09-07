@@ -105,7 +105,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     // TODO à tester
     @Override
     public void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
-        this.checkEcritureComptableUnitViolation(pEcritureComptable);
+        this.checkEcritureComptableUnitConstraints(pEcritureComptable);
         this.checkEcritureComptableContext(pEcritureComptable);
     }
 
@@ -117,14 +117,15 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable -
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
-    protected void checkEcritureComptableUnitViolation(EcritureComptable pEcritureComptable) throws FunctionalException {
+    protected void checkEcritureComptableUnitConstraints(EcritureComptable pEcritureComptable) throws FunctionalException {
         // ===== Vérification des contraintes unitaires sur les attributs de l'écriture
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
         if (!vViolations.isEmpty()) {
-            throw new FunctionalException("L'écriture comptable ne respecte pas les règles de gestion.",
-                    new ConstraintViolationException(
-                            "L'écriture comptable ne respecte pas les contraintes de validation",
-                            vViolations));
+            String errorMessage = "L'écriture comptable ne respecte pas les contraintes de validation :";
+            for(ConstraintViolation v : vViolations) {
+                errorMessage = errorMessage + " " + v.getMessage();
+            }
+            throw new FunctionalException(errorMessage);
         }
     }
 
@@ -185,7 +186,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             Date date = pEcritureComptable.getDate();
             String ecritureYear = String.valueOf(DateUtility.convertToCalender(date).get(Calendar.YEAR));
             String [] splitedRef = reference.split("[-/]");
-
 
             //Récupération de l'année de l'écriture comptable depuis la référence
             String refYear = splitedRef[1];
@@ -315,7 +315,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     }
 
     /**
-     *  Update a seauenceEcritureComptable
+     *  Update a sequenceEcritureComptable
      * @param sequenceEcritureComptable to be updated
      */
     protected void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
@@ -328,7 +328,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 getTransactionManager().rollbackMyERP(vTS);
         }
     }
-
 
     /**
      *  Insert a new sequenceEcritureComptable
