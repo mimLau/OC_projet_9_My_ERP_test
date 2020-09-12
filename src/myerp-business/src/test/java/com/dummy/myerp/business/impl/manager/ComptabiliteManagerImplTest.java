@@ -17,8 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static java.sql.Date.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -163,6 +165,101 @@ public class ComptabiliteManagerImplTest {
         assertThat(exception.getMessage()).isEqualTo("L'écriture comptable ne respecte pas les contraintes de validation : Le libellé doit comporter entre 1 et 200 caractères.");
     }
 
+    @Test
+    @Tag("RG1")
+    @DisplayName("Given Compte comptable Without List of line ecriture,when CheckEcritureComptableUnitRG1 then throw notFoundException")
+    public void givenCompteComptableWithListOfLigneEcritureNull_whenCheckEcritureComptableUnitRG1_thenThrowNotFoundException() throws NotFoundException {
+
+        // Given
+        CompteComptable compteComptable = new CompteComptable();
+        compteComptable.setNumero(512);
+
+        Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getListLigneEcritureComptableByCompteNumber(compteComptable.getNumero())).thenReturn(null);
+
+        // WHEN
+        NotFoundException exception = assertThrows(
+                NotFoundException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG1(compteComptable));
+
+        // Assert
+        assertThat(exception.getMessage()).isEqualTo("There is any ligne ecriture for the accounting account number : " + compteComptable.getNumero());
+    }
+
+    @Test
+    @Tag("RG1")
+    @DisplayName("Given Compte comptable With List of line ecriture which subtract of total debit with totql credit is < 0,when CheckEcritureComptableUnitRG1 then throw FunctionnalException")
+    public void givenCompteComptableWithListOfLigneEcritureWithNegativeBalance_whenCheckEcritureComptableUnitRG1_thenThrowFunctionalException() throws NotFoundException {
+
+        // Given
+        CompteComptable compteComptable = new CompteComptable();
+        compteComptable.setNumero(512);
+        List<LigneEcritureComptable> ligneEcritureComptableList = new ArrayList<>();
+        LigneEcritureComptable ligneEcritureComptable1 = new LigneEcritureComptable();
+        LigneEcritureComptable ligneEcritureComptable2 = new LigneEcritureComptable();
+        LigneEcritureComptable ligneEcritureComptable3 = new LigneEcritureComptable();
+        ligneEcritureComptable1.setCredit(new BigDecimal(300));
+        ligneEcritureComptable1.setCompteComptable(compteComptable);
+        ligneEcritureComptable2.setCredit(new BigDecimal(400));
+        ligneEcritureComptable2.setCompteComptable(compteComptable);
+        ligneEcritureComptable3.setDebit(new BigDecimal(250));
+        ligneEcritureComptable3.setCompteComptable(compteComptable);
+
+        ligneEcritureComptableList.add(ligneEcritureComptable1);
+        ligneEcritureComptableList.add(ligneEcritureComptable2);
+        ligneEcritureComptableList.add(ligneEcritureComptable3);
+
+        Mockito.when(daoProxyMock.getComptabiliteDao())
+                .thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao()
+                .getListLigneEcritureComptableByCompteNumber(compteComptable.getNumero())).thenReturn(ligneEcritureComptableList);
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, ()
+                        -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG1(compteComptable));
+
+        // Assert
+        assertThat(exception.getMessage())
+                .isEqualTo(String.format("Le compte comptable numéro %s est créditeur.", compteComptable.getNumero()));
+    }
+
+    @Test
+    @Tag("RG1")
+    @DisplayName("Given Compte comptable With List of line ecriture which subtract of total debit with total credit is > 0,when CheckEcritureComptableUnitRG1 then throw FunctionnalException")
+    public void givenCompteComptableWithListOfLigneEcritureWithPositiveBalance_whenCheckEcritureComptableUnitRG1_thenThrowFunctionalException() throws NotFoundException, FunctionalException {
+
+        // Given
+        CompteComptable compteComptable = new CompteComptable();
+        compteComptable.setNumero(512);
+        List<LigneEcritureComptable> ligneEcritureComptableList = new ArrayList<>();
+        LigneEcritureComptable ligneEcritureComptable1 = new LigneEcritureComptable();
+        LigneEcritureComptable ligneEcritureComptable2 = new LigneEcritureComptable();
+        LigneEcritureComptable ligneEcritureComptable3 = new LigneEcritureComptable();
+        ligneEcritureComptable1.setCredit(new BigDecimal(300));
+        ligneEcritureComptable1.setCompteComptable(compteComptable);
+        ligneEcritureComptable2.setCredit(new BigDecimal(400));
+        ligneEcritureComptable2.setCompteComptable(compteComptable);
+        ligneEcritureComptable3.setDebit(new BigDecimal(950));
+        ligneEcritureComptable3.setCompteComptable(compteComptable);
+
+        ligneEcritureComptableList.add(ligneEcritureComptable1);
+        ligneEcritureComptableList.add(ligneEcritureComptable2);
+        ligneEcritureComptableList.add(ligneEcritureComptable3);
+
+        Mockito.when(daoProxyMock.getComptabiliteDao())
+                .thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao()
+                .getListLigneEcritureComptableByCompteNumber(compteComptable.getNumero())).thenReturn(ligneEcritureComptableList);
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, ()
+                        -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG1(compteComptable));
+
+        // Assert
+        assertThat(exception.getMessage())
+                .isEqualTo(String.format("Le compte comptable numéro %s est débiteur.", compteComptable.getNumero()));
+    }
 
     @Test
     @Tag("RG2")
@@ -182,6 +279,8 @@ public class ComptabiliteManagerImplTest {
         // Assert
         assertThat(exception.getMessage()).isEqualTo("L'écriture comptable n'est pas équilibrée.");
     }
+
+
 
     @Test
     @Tag("RG3")

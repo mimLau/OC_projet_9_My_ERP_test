@@ -25,6 +25,12 @@
                 SELECT * FROM myerp.ecriture_comptable
             </value>
         </property>
+        <property name="SQLgetListLigneEcritureComptableByCompteNb">
+            <value>
+                SELECT *  FROM myerp.ligne_ecriture_comptable
+                WHERE compte_comptable_numero = :compte_comptable_numero
+            </value>
+        </property>
         <property name="SQLgetEcritureComptable">
             <value>
                 SELECT * FROM myerp.ecriture_comptable
@@ -47,34 +53,34 @@
         <property name="SQLinsertEcritureComptable">
             <value>
                 INSERT INTO myerp.ecriture_comptable (
-                    id,
-                    journal_code, reference, date, libelle
+                id,
+                journal_code, reference, date, libelle
                 ) VALUES (
-                    nextval('myerp.ecriture_comptable_id_seq'),
-                    :journal_code, :reference, :date, :libelle
+                nextval('myerp.ecriture_comptable_id_seq'),
+                :journal_code, :reference, :date, :libelle
                 )
             </value>
         </property>
         <property name="SQLinsertListLigneEcritureComptable">
             <value>
                 INSERT INTO myerp.ligne_ecriture_comptable (
-                    ecriture_id, ligne_id, compte_comptable_numero, libelle, debit
-                    credit
+                ecriture_id, ligne_id, compte_comptable_numero, libelle, debit
+                credit
                 ) VALUES (
-                    :ecriture_id, :ligne_id, :compte_comptable_numero, :libelle, :debit,
-                    :credit
+                :ecriture_id, :ligne_id, :compte_comptable_numero, :libelle, :debit,
+                :credit
                 )
             </value>
         </property>
         <property name="SQLupdateEcritureComptable">
             <value>
                 UPDATE myerp.ecriture_comptable SET
-                    journal_code = :journal_code,
-                    reference = :reference,
-                    date = :date,
-                    libelle = :libelle
+                journal_code = :journal_code,
+                reference = :reference,
+                date = :date,
+                libelle = :libelle
                 WHERE
-                    id = :id
+                id = :id
             </value>
         </property>
         <property name="SQLdeleteEcritureComptable">

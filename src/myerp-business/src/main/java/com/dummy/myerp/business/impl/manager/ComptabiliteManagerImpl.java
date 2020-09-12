@@ -12,6 +12,7 @@ import javax.validation.ConstraintViolationException;
 
 import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.util.DateUtility;
+import jdk.nashorn.internal.ir.FunctionNode;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.TransactionStatus;
@@ -30,6 +31,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
 
     // ==================== Constructeurs ====================
+
     /**
      * Instantiates a new Comptabilite manager.
      */
@@ -65,7 +67,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
 
         //Récupération du code du journal_code de pEcritureComptable
-        String journalCode =  pEcritureComptable.getJournal().getCode();
+        String journalCode = pEcritureComptable.getJournal().getCode();
 
         //Récupération de la date de pEcritureComptable puis extraire l'année d'écriture
         Date date = pEcritureComptable.getDate();
@@ -77,7 +79,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         String pattern = "00000";
         DecimalFormat referenceCodeFormat = new DecimalFormat(pattern);
 
-        if(seqEcritureComptable != null) {
+        if (seqEcritureComptable != null) {
             // Si la séquence d'écriture existe, on incrémente de 1 la dernière valeur.
             seqEcritureComptable.setDerniereValeur(seqEcritureComptable.getDerniereValeur() + 1);
             //Mettre à jour la séquence d'écriture
@@ -95,7 +97,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         // Récupération de la dernière valeur de la séquence de l'ecriture comptable.
         int incrementedDerniereValeur = seqEcritureComptable.getDerniereValeur();
         // Mettre à jour la référence de l'écritureComptable
-        String updatedReference = journalCode + "-" + ecritureYear + "/" +  referenceCodeFormat.format(incrementedDerniereValeur);
+        String updatedReference = journalCode + "-" + ecritureYear + "/" + referenceCodeFormat.format(incrementedDerniereValeur);
         pEcritureComptable.setReference(updatedReference);
     }
 
@@ -122,7 +124,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
         if (!vViolations.isEmpty()) {
             String errorMessage = "L'écriture comptable ne respecte pas les contraintes de validation :";
-            for(ConstraintViolation v : vViolations) {
+            for (ConstraintViolation v : vViolations) {
                 errorMessage = errorMessage + " " + v.getMessage();
             }
             throw new FunctionalException(errorMessage);
@@ -132,15 +134,44 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     // ===== RG_Compta_1 : Le solde d'un compte comptable est égal à la somme des montants au débit des lignes d'écriture
     // diminuées de la somme des montants au crédit.
     // Si le résultat est positif, le solde est dit "débiteur", si le résultat est négatif le solde est dit "créditeur".
-    protected void checkEcritureComptableUnit_RG1(EcritureComptable pEcritureComptable) throws FunctionalException {
+    protected BigDecimal checkEcritureComptableUnit_RG1(CompteComptable compteComptable) throws NotFoundException, FunctionalException {
+        BigDecimal totalDebit = BigDecimal.ZERO;
+        BigDecimal totalCredit = BigDecimal.ZERO;
+        BigDecimal balance;
 
+        List<LigneEcritureComptable> ligneEcritureComptables = getDaoProxy().getComptabiliteDao().getListLigneEcritureComptableByCompteNumber(compteComptable.getNumero());
+
+        if (ligneEcritureComptables == null)
+            throw new NotFoundException("There is any ligne ecriture for the accounting account number : " + compteComptable.getNumero());
+
+        for (LigneEcritureComptable ligne : ligneEcritureComptables) {
+            if (ligne.getDebit() != null) {
+                totalDebit = totalDebit.add(ligne.getDebit());
+            }
+            if (ligne.getCredit() != null) {
+                totalCredit = totalCredit.add(ligne.getCredit());
+            }
+        }
+
+        balance = totalDebit.subtract(totalCredit);
+
+        if (balance.compareTo(BigDecimal.ZERO) > 0) {
+            throw new FunctionalException(String.format("Le compte comptable numéro %s est débiteur.", compteComptable.getNumero()));
+
+        } else if (balance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new FunctionalException(String.format("Le compte comptable numéro %s est créditeur.", compteComptable.getNumero()));
+        }
+
+        return balance;
     }
 
-        /**
-         * Check if ecriture comptable is equilibre
-         * @param pEcritureComptable
-         * @throws FunctionalException
-         */
+
+
+    /**
+     * Check if ecriture comptable is equilibre
+     * @param pEcritureComptable
+     * @throws FunctionalException
+     */
     // ===== RG_Compta_2 : Pour qu'une écriture comptable soit valide, elle doit être équilibrée
     protected void checkEcritureComptableUnit_RG2(EcritureComptable pEcritureComptable) throws FunctionalException {
         if (!pEcritureComptable.isEquilibree()) {
@@ -247,13 +278,13 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             try {
                 // Recherche d'une écriture ayant la même référence
                 EcritureComptable vECRef = getDaoProxy().getComptabiliteDao().getEcritureComptableByRef(
-                    pEcritureComptable.getReference());
+                        pEcritureComptable.getReference());
 
                 // Si l'écriture à vérifier est une nouvelle écriture (id == null),
                 // ou si elle ne correspond pas à l'écriture trouvée (id != idECRef),
                 // c'est qu'il y a déjà une autre écriture avec la même référence
                 if (pEcritureComptable.getId() == null
-                    || !pEcritureComptable.getId().equals(vECRef.getId())) {
+                        || !pEcritureComptable.getId().equals(vECRef.getId())) {
                     throw new FunctionalException("Une autre écriture comptable existe déjà avec la même référence.");
                 }
             } catch (NotFoundException vEx) {
@@ -323,9 +354,9 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, String journalCode) {
         SequenceEcritureComptable retrievedSeqEcritureComptable;
         try {
-                retrievedSeqEcritureComptable = getDaoProxy()
-                        .getComptabiliteDao()
-                        .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
+            retrievedSeqEcritureComptable = getDaoProxy()
+                    .getComptabiliteDao()
+                    .getSeqEcritureComptableByJCodeAndYear(ecritureYear, journalCode);
 
         } catch (NotFoundException e) {
             retrievedSeqEcritureComptable = null;
@@ -340,11 +371,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     protected void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
         TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
         try {
-                getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(sequenceEcritureComptable);
-                getTransactionManager().commitMyERP(vTS);
-                vTS = null;
-            } finally {
-                getTransactionManager().rollbackMyERP(vTS);
+            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(sequenceEcritureComptable);
+            getTransactionManager().commitMyERP(vTS);
+            vTS = null;
+        } finally {
+            getTransactionManager().rollbackMyERP(vTS);
         }
     }
 
