@@ -23,8 +23,6 @@ public class CompteComptableTest {
         compteComptableList.add(compteComptableUnderTest);
         compteComptableUnderTest = new CompteComptable(3, "Banque");
         compteComptableList.add(compteComptableUnderTest);
-
-
     }
 
     @Test
@@ -56,11 +54,16 @@ public class CompteComptableTest {
     }
 
     @Test
-    public void givenCompteComptableNb_whenToString_returnTheGoodSentecnce(){
+    @DisplayName("Testing the method toString of compte comptable")
+    public void givenCompteComptableNb_whenToString_returnTheGoodSentence(){
 
-        CompteComptable compteComptable = new CompteComptable();
-        compteComptable.setLibelle("Achats");
-        compteComptable.setNumero(2);
-        assertThat("CompteComptable{numero=2, libelle='Achats'}").isEqualTo(compteComptable.toString());
+       // GIVEN
+        CompteComptable compteComptable = compteComptableList.get(1);
+
+        // WHEN
+        String result = compteComptable.toString();
+
+        // THEN
+        assertThat("CompteComptable{numero=2, libelle='Achats'}").isEqualTo(result);
     }
 }
