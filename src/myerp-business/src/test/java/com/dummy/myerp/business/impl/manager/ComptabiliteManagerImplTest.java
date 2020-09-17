@@ -128,12 +128,8 @@ public class ComptabiliteManagerImplTest {
 
         // GIVEN
         ecritureComptable.setJournal(null);
-        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(123),
-                null));
-        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(1243),
-                null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(1243),null));
 
         // WHEN
         FunctionalException exception = assertThrows(
@@ -166,6 +162,23 @@ public class ComptabiliteManagerImplTest {
     }
 
     @Test
+    @DisplayName("CheckEcritureComptableUnitDebitOrCredit should throw a fucntionnal exception if ecriture comptable has a line ecriture with a debit and a credit ")
+    void givenEcritureComptableWithLignesEcriture_whenCheckEcritureComptableUnitDebitOrCredit_thenThrowFunctionalException() {
+
+        // GIVEN
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), null, new BigDecimal(584), new BigDecimal(100)));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), null, null, new BigDecimal(505)));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(3), null, new BigDecimal(123), null));
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnitDebitOrCredit(ecritureComptable));
+
+        // THEN
+        assertThat(exception.getMessage()).isEqualTo("Une écriture comptable ne doit pas avoir un montant au débit et un montant au crédit.");
+    }
+
+    @Test
     @Tag("RG1")
     @DisplayName("Given Compte comptable Without List of line ecriture,when CheckEcritureComptableUnitRG1 then throw notFoundException")
     public void givenCompteComptableWithListOfLigneEcritureNull_whenCheckEcritureComptableUnitRG1_thenThrowNotFoundException() throws NotFoundException {
@@ -181,7 +194,7 @@ public class ComptabiliteManagerImplTest {
         NotFoundException exception = assertThrows(
                 NotFoundException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG1(compteComptable));
 
-        // Assert
+        // THEN
         assertThat(exception.getMessage()).isEqualTo("There is any ligne ecriture for the accounting account number : " + compteComptable.getNumero());
     }
 
@@ -218,7 +231,7 @@ public class ComptabiliteManagerImplTest {
                 FunctionalException.class, ()
                         -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG1(compteComptable));
 
-        // Assert
+        // THEN
         assertThat(exception.getMessage())
                 .isEqualTo(String.format("Le compte comptable numéro %s est créditeur.", compteComptable.getNumero()));
     }
@@ -256,7 +269,7 @@ public class ComptabiliteManagerImplTest {
                 FunctionalException.class, ()
                         -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG1(compteComptable));
 
-        // Assert
+        // THEN
         assertThat(exception.getMessage())
                 .isEqualTo(String.format("Le compte comptable numéro %s est débiteur.", compteComptable.getNumero()));
     }
@@ -276,7 +289,7 @@ public class ComptabiliteManagerImplTest {
         FunctionalException exception = assertThrows(
                 FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG2(ecritureComptable));
 
-        // Assert
+        // THEN
         assertThat(exception.getMessage()).isEqualTo("L'écriture comptable n'est pas équilibrée.");
     }
 
@@ -297,7 +310,7 @@ public class ComptabiliteManagerImplTest {
         FunctionalException exception = assertThrows(
                 FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG3(ecritureComptable));
 
-        // Assert
+        // THEN
         assertThat(exception.getMessage()).isEqualTo("L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
     }
 
@@ -316,7 +329,7 @@ public class ComptabiliteManagerImplTest {
         FunctionalException exception = assertThrows(
                 FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG3(ecritureComptable));
 
-        // Assert
+        // THEN
         assertThat(exception.getMessage()).isEqualTo("L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
     }
 
@@ -334,7 +347,7 @@ public class ComptabiliteManagerImplTest {
         FunctionalException exception = assertThrows(
                 FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG3(ecritureComptable));
 
-        // Assert
+        // THEN
         assertThat(exception.getMessage()).isEqualTo("L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
     }
 
@@ -447,5 +460,38 @@ public class ComptabiliteManagerImplTest {
 
         // THEN
         assertThat(exception.getMessage()).isEqualTo("Une autre écriture comptable existe déjà avec la même référence.");
+    }
+
+    @Test
+    @Tag("RG7")
+    @DisplayName("Given Compte comptable Without List of line ecriture,when CheckEcritureComptableUnitRG1 then throw notFoundException")
+    public void givenCompteComptable_checkEcritureComptableUnit_RG7_thenThrowFunctionnalException() {
+
+        // GIVEN
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "Lib", new BigDecimal("100.255"), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "Lib", null, new BigDecimal("250.7")));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(3), "Lib", new BigDecimal(123), null));
+
+        // WHEN
+        FunctionalException exception = assertThrows(
+                FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG7(ecritureComptable));
+
+        // THEN
+        assertThat(exception.getMessage()).isEqualTo("Le montant des lignes écriture doit comporter au maximum 2 chiffres.");
+    }
+
+    @Test
+    public void givenEcritureComptable_whenCheckEcritureComptable() throws NotFoundException, FunctionalException {
+
+        // GIVEN
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "Lib1", new BigDecimal("100.25"), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "Lib2", null, new BigDecimal("100.25")));
+        Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getEcritureComptableByRef(ecritureComptable.getReference())).thenReturn(ecritureComptable);
+
+        // WHEN
+        comptabiliteManagerImpl.checkEcritureComptable(ecritureComptable);
+
+        // THEN
     }
 }
