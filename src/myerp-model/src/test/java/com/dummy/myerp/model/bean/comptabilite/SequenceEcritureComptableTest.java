@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SequenceEcritureComptableTest {
 
      SequenceEcritureComptable sequenceEcritureComptableUnderTest;
-     JournalComptable journalComptable;
 
 
     @Test
