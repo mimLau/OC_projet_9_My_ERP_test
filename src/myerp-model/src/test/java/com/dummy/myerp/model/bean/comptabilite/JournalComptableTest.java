@@ -2,6 +2,7 @@ package com.dummy.myerp.model.bean.comptabilite;
 
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -27,7 +28,8 @@ public class JournalComptableTest {
     }
 
     @Test
-    void givenJornalComptableCode_whenGetByCode_thenReturnTheGoodJournalComptable() {
+    @DisplayName("Retrieve a journal comptable by his code.")
+    void givenJournalComptableCode_whenGetByCode_thenReturnTheGoodJournalComptable() {
 
         // GIVEN
         String journalComptableCode = "BQ";
@@ -40,6 +42,7 @@ public class JournalComptableTest {
     }
 
     @Test
+    @DisplayName("Getting a journal comptable with a code which doesn't exist, then should return null.")
     void givenJornalComptableCode_whenGetByCode__ifJournalComptableDontExist_shouldReturnNull() {
 
         // GIVEN
@@ -54,7 +57,8 @@ public class JournalComptableTest {
 
 
     @Test
-    public void givenComptableCode_whenToString_returnTheGoodSentence(){
+    @DisplayName("Testing the method toString of Journal comptable")
+    public void givenJournalComptable_whenToString_returnTheGoodSentence(){
 
         // GIVEN
         JournalComptable journalComptable = journalComptableList.get(2);
