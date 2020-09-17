@@ -1,6 +1,7 @@
 package com.dummy.myerp.model.bean.comptabilite;
 
 import org.junit.Before;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ public class LigneEcritureComptableTest {
 
 
     @Test
+    @DisplayName("Testing the method toString of ligne ecriture")
     public void givenLigneEcritureComptable_whenToString_returnTheGoodSentence() {
 
         // GIVEN
