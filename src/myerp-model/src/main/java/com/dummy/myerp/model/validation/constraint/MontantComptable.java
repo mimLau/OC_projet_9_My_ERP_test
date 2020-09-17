@@ -23,7 +23,7 @@ import javax.validation.constraints.Digits;
  *      <li>{@link java.math.BigDecimal}</li>
  *  </ul>
  */
-@Digits(integer = 13, fraction = 2)
+@Digits(integer = 13, fraction = 2, message ="Le montant des lignes écriture doit comporter au maximum 2 chiffres.")
 @Target({ ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {})

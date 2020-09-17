@@ -108,7 +108,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     @Override
     public void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
         this.checkEcritureComptableUnitConstraints(pEcritureComptable);
+        this.checkEcritureComptableUnit_RG2(pEcritureComptable);
+        this.checkEcritureComptableUnit_RG3(pEcritureComptable);
+        this.checkEcritureComptableUnit_RG5(pEcritureComptable);
         this.checkEcritureComptableUnit_RG6(pEcritureComptable);
+        this.checkEcritureComptableUnit_RG7(pEcritureComptable);
     }
 
 
@@ -128,6 +132,22 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 errorMessage = errorMessage + " " + v.getMessage();
             }
             throw new FunctionalException(errorMessage);
+        }
+    }
+
+    /**
+     * Vérifie aue une ligne écriture comporte soit une montant au crédit soit un montant au débit mais pas les 2.
+     *
+     * @param pEcritureComptable -
+     * @throws FunctionalException
+     */
+    protected void checkEcritureComptableUnitDebitOrCredit(EcritureComptable pEcritureComptable) throws FunctionalException {
+        for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
+            if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getCredit(), BigDecimal.ZERO)) != 0
+                    && (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getDebit(), BigDecimal.ZERO)) != 0)) {
+                throw new FunctionalException(
+                        "Une écriture comptable ne doit pas avoir un montant au débit et un montant au crédit.");
+            }
         }
     }
 
@@ -295,9 +315,43 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
     // ===== RG_Compta_7 : Les montants des lignes d'écritures peuvent comporter 2 chiffres maximum après la virgule.
     protected void checkEcritureComptableUnit_RG7(EcritureComptable pEcritureComptable) throws FunctionalException {
+        for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
 
+            String debit;
+            String credit;
+            int debitIndex;
+            int creditIndex;
+            int debitNbDigit = 0;
+            int creditNbDigit = 0;
 
+            if(vLigneEcritureComptable.getDebit() != null) {
+                debit = vLigneEcritureComptable.getDebit().toPlainString();
+                debitIndex = debit.indexOf(".");
+                 debitNbDigit = debitIndex < 0 ?  0 : debit.length() - debitIndex - 1;
+            }
+
+            if(vLigneEcritureComptable.getCredit() != null) {
+                credit = vLigneEcritureComptable.getCredit().toPlainString();
+                creditIndex = credit.indexOf(".");
+                creditNbDigit = creditIndex < 0 ?  0 : credit.length() - creditIndex - 1;
+            }
+
+            if(creditNbDigit > 2 || debitNbDigit > 2)
+                throw new FunctionalException("Le montant des lignes écriture doit comporter au maximum 2 chiffres.");
+        }
+
+        /*
+        for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
+                Set<ConstraintViolation<LigneEcritureComptable>> vViolations = getConstraintValidator().validate(vLigneEcritureComptable);
+                if (!vViolations.isEmpty()) {
+                    for(ConstraintViolation v: vViolations)
+                        v.getMessage();
+                    throw new FunctionalException("Le montant des lignes écriture doit comporter au maximum 2 chiffres.");
+                }
+            }
+         */
     }
+
 
     /**
      * {@inheritDoc}
