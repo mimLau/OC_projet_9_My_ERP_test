@@ -15,7 +15,7 @@ public class LigneEcritureComptableTest {
 
 
     @Test
-    public void testToString() {
+    public void givenLigneEcritureComptable_whenToString_returnTheGoodSentence() {
 
         // GIVEN
         ligneEcritureComptable = new LigneEcritureComptable();
