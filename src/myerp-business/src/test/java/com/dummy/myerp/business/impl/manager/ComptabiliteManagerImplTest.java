@@ -10,6 +10,7 @@ import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
 import com.dummy.myerp.technical.util.DateUtility;
 
+import org.junit.Ignore;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -33,20 +34,22 @@ public class ComptabiliteManagerImplTest {
 
     private ComptabiliteManagerImpl comptabiliteManagerImpl = new ComptabiliteManagerImpl();
 
-    private static DaoProxy daoProxyMock = mock(DaoProxy.class);
-    private static ComptabiliteDao comptabiliteDaoMock = mock(ComptabiliteDao.class);
-    private static BusinessProxy businessProxyMock = mock(BusinessProxy.class);
-    private static TransactionManager transactionManagerMock = mock(TransactionManager.class);
+    private static DaoProxy daoProxyMock;
+    private static ComptabiliteDao comptabiliteDaoMock;
+    private static BusinessProxy businessProxyMock;
+    private static TransactionManager transactionManagerMock;
     EcritureComptable ecritureComptable;
 
 
-    @BeforeAll
-    public static void setUp() {
-        AbstractBusinessManager.configure(businessProxyMock, daoProxyMock, transactionManagerMock);
-    }
-
     @BeforeEach
     public void init(){
+
+        daoProxyMock = mock(DaoProxy.class);
+        comptabiliteDaoMock = mock(ComptabiliteDao.class);
+        businessProxyMock = mock(BusinessProxy.class);
+        transactionManagerMock = mock(TransactionManager.class);
+        AbstractBusinessManager.configure(businessProxyMock, daoProxyMock, transactionManagerMock);
+
         ecritureComptable = new EcritureComptable();
         ecritureComptable.setId(1);
         ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
