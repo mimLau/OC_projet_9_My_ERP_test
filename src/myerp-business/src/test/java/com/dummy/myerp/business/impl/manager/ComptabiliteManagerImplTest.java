@@ -10,7 +10,6 @@ import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
 import com.dummy.myerp.technical.util.DateUtility;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -18,10 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static java.sql.Date.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -388,12 +384,31 @@ public class ComptabiliteManagerImplTest {
         String[] incrementedDerniereVal = ecritureComptable.getReference().split("[-/]");
 
         // THEN
-        //verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         verify(daoProxyMock.getComptabiliteDao(), times(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
         assertThat(incrementedDerniereVal[2]).isEqualTo("00001");
         then(daoProxyMock.getComptabiliteDao()).should(atLeast(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
     }
 
+    @Test
+    @Tag("RG5")
+    @DisplayName("Given ecriture comptable at addReference(), then insert a new sequence in ecriture comptable")
+    public void givenEcritureComptavle_whenAddRef_thenInsertAnewSequence() throws NotFoundException {
+
+        // GIVEN
+        Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC")).thenReturn(null);
+
+        // WHEN
+        comptabiliteManagerImpl.addReference(ecritureComptable);
+
+        // THEN
+        verify(daoProxyMock.getComptabiliteDao()).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        verify(daoProxyMock.getComptabiliteDao(), times(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        assertThat("AC-2020/00001").isEqualTo( ecritureComptable.getReference());
+        then(daoProxyMock.getComptabiliteDao()).should(atLeast(1)).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+
+    }
 
     @Test
     @Tag("RG5")
@@ -468,7 +483,7 @@ public class ComptabiliteManagerImplTest {
     @Test
     @Tag("RG7")
     @DisplayName("Given Compte comptable Without List of line ecriture,when CheckEcritureComptableUnitRG1 then throw notFoundException")
-    public void givenCompteComptable_checkEcritureComptableUnit_RG7_thenThrowFunctionnalException() {
+    public void givenCompteComptable_whenCheckEcritureComptableUnit_RG7_thenThrowFunctionnalException() {
 
         // GIVEN
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "Lib", new BigDecimal("100.255"), null));
@@ -497,4 +512,156 @@ public class ComptabiliteManagerImplTest {
 
         // THEN
     }
+
+    @Test
+    @DisplayName("Given a list of Compte comptable, when getListCompteComptable then give the list of compte comptable")
+    public void givenListEcritureComptable_whenGetListCompteComptable_thenGiveTheListOfCompteComptable() {
+
+        // GIVEN
+        List<CompteComptable> compteComptableList = new ArrayList<>(Arrays.asList(new CompteComptable(1, "Fournisseur"),
+                                                                                  new CompteComptable(2, "Achat"),
+                                                                                  new CompteComptable(3, "Banque")));
+        Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getListCompteComptable()).thenReturn(compteComptableList);
+
+
+        // WHEN
+        List<CompteComptable> compteComptableListTest = comptabiliteManagerImpl.getListCompteComptable();
+
+        // THEN
+        assertThat(compteComptableListTest.size()).isEqualTo(3);
+        assertThat(compteComptableListTest.get(0).getNumero()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Given a list of Journal comptable, when getListJournalComptable then give the list of journal comptable")
+    public void givenJournalComptableList_whenGetListJournalComptable_thenGiveTheListOfJournalComptable() {
+
+        // GIVEN
+        List<JournalComptable> journalComptableList = new ArrayList<>(Arrays.asList(new JournalComptable("AC", "Achat"),
+                                                                                    new JournalComptable("VE", "Vente"),
+                                                                                    new JournalComptable("BA", "Banque"),
+                                                                                    new JournalComptable("OD", "Opérations diverses")));
+
+        Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getListJournalComptable()).thenReturn(journalComptableList);
+
+
+        // WHEN
+        List<JournalComptable> journalComptableListTest = comptabiliteManagerImpl.getListJournalComptable();
+
+        // THEN
+        assertThat(journalComptableListTest.size()).isEqualTo(4);
+        assertThat(journalComptableListTest.get(0).getCode()).isEqualTo("AC");
+        assertThat(journalComptableListTest.get(2).getLibelle()).isEqualTo("Banque");
+    }
+
+
+    @Test
+    @DisplayName("Given a list of ecriture comptable, when getListEcritureComptable then give the list of journal comptable")
+    public void givenEcrtureComptableList_whenGetListEcritureComptable_thenGiveTheListOfEcritureComptable() {
+
+        // GIVEN
+        JournalComptable journalComptable1 = new JournalComptable();
+        journalComptable1.setCode("AC");
+        journalComptable1.setLibelle("Achat");
+
+        JournalComptable journalComptable2 = new JournalComptable();
+        journalComptable2.setCode("BQ");
+        journalComptable2.setLibelle("Banque");
+
+        EcritureComptable ecritureComptable1 = new EcritureComptable();
+        ecritureComptable1.setJournal(journalComptable1);
+        ecritureComptable1.setLibelle("Journal achat");
+
+        EcritureComptable ecritureComptable2 = new EcritureComptable();
+        ecritureComptable2.setJournal(journalComptable2);
+        ecritureComptable2.setLibelle("Journal banque");
+
+        List<EcritureComptable> ecritureComptableList = new ArrayList<>(Arrays.asList(ecritureComptable1,
+                                                                                      ecritureComptable2));
+        Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
+        when(daoProxyMock.getComptabiliteDao().getListEcritureComptable()).thenReturn(ecritureComptableList);
+
+        // WHEN
+        List<EcritureComptable> ecritureComptableListTest = comptabiliteManagerImpl.getListEcritureComptable();
+
+        // THEN
+        assertThat(ecritureComptableListTest.size()).isEqualTo(2);
+        assertThat(ecritureComptableListTest.get(0).getJournal().getCode()).isEqualTo("AC");
+        assertThat(ecritureComptableListTest.get(1).getLibelle()).isEqualTo("Journal banque");
+    }
+
+    @Test
+    @DisplayName("Given ecritureComptable with a null reference, when insertEcritureComptable then throw functionnalException")
+    void givenEcritureCompatableWithRefNull_whenInsertEcritureComptable_thenThrowFunctionalException() {
+        ecritureComptable.setReference(null);
+
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
+
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.insertEcritureComptable(ecritureComptable));
+        assertThat("La référence de l'écriture comptable est null!!").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Given not equilbrée ecritureComptable , when insertEcritureComptable then throw functionnalException")
+    void givenNotEquilibreEcritureCompatableWithRefNull_whenInsertEcritureComptable_thenThrowFunctionalException() {
+
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(3), "ecriture3", null, new BigDecimal(215)));
+
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.insertEcritureComptable(ecritureComptable));
+        assertThat("L'écriture comptable n'est pas équilibrée.").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Given ecritureComptable with a date null, when insertEcritureComptable then throw functionnalException")
+    void givenEcritureCompatableWithDateNull_whenInsertEcritureComptable_thenThrowFunctionalException() {
+
+        ecritureComptable.setDate(null);
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
+
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.insertEcritureComptable(ecritureComptable));
+        assertThat("L'écriture comptable ne respecte pas les contraintes de validation : La date ne doit pas être nulle.").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Given ecritureComptable with a null reference, when updateEcritureComptable then throw functionnalException")
+    void givenEcritureCompatableWithRefNull_whenUpdateEcritureComptable_thenThrowFunctionalException() {
+        ecritureComptable.setReference(null);
+
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
+
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.updateEcritureComptable(ecritureComptable));
+        assertThat("La référence de l'écriture comptable est null!!").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Given not equilibrée ecritureComptable , when updateEcritureComptable then throw functionnalException")
+    void givenNotEquilibreEcritureCompatableWithRefNull_whenUpdateEcritureComptable_thenThrowFunctionalException() {
+
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(3), "ecriture3", null, new BigDecimal(215)));
+
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.updateEcritureComptable(ecritureComptable));
+        assertThat("L'écriture comptable n'est pas équilibrée.").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Given ecritureComptable with a date null, when updateEcritureComptable then throw functionnalException")
+    void givenEcritureCompatableWithDateNull_whenUpdateEcritureComptable_thenThrowFunctionalException() {
+
+        ecritureComptable.setDate(null);
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
+
+        FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.updateEcritureComptable(ecritureComptable));
+        assertThat("L'écriture comptable ne respecte pas les contraintes de validation : La date ne doit pas être nulle.").isEqualTo(exception.getMessage());
+    }
+
 }
