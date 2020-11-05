@@ -7,6 +7,25 @@
     <!-- =======   Link to production ITapplicationContext.xml  ====== -->
     <import resource="classpath:com/dummy/myerp/consumer/applicationContext.xml"/>
 
+
+    <!-- ====================   Consumer   ==================== -->
+
+    <!-- AbstractDbConsumer -->
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass" value="com.dummy.myerp.consumer.db.AbstractDbConsumer"/>
+        <property name="targetMethod" value="configure"/>
+        <property name="arguments">
+            <map>
+                <entry value-ref="dataSourceMYERPInMemory">
+                    <key>
+                        <value type="com.dummy.myerp.consumer.db.DataSourcesEnum">MYERP</value>
+                    </key>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+
     <!-- ====================   Business-Proxy   ==================== -->
 
     <!-- BusinessProxy -->
@@ -17,7 +36,6 @@
         <constructor-arg ref="DaoProxy"/>
         <constructor-arg ref="TransactionManager"/>
     </bean>
-
 
     <!-- Transaction Manager -->
     <bean id="TransactionManager"
@@ -30,7 +48,26 @@
 
     <!-- PlatformTransactionManager pour le DataSource MYERP -->
     <bean id="txManagerMYERP" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSourceMYERPInMemory"/>
+        <property name="dataSource" ref="dataSourceMYERP"/>
+    </bean>
+
+    <!-- ==================== Databases ==================== -->
+
+    <bean id="props" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:com/dummy/myerp/testbusiness/business/IT_db_config.properties</value>
+            </list>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    </bean>
+
+
+    <bean id="dataSourceMYERPInMemory" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${spring.datasource.driverClassName}" />
+        <property name="url" value="${spring.datasource.url}" />
+        <property name="username" value="${spring.datasource.username}" />
+        <property name="password" value="${spring.datasource.password}" />
     </bean>
 
 </beans>
