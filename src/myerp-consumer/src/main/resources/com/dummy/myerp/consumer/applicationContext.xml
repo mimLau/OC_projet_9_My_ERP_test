@@ -21,20 +21,6 @@
         </property>
     </bean>
 
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetClass" value="com.dummy.myerp.consumer.db.AbstractDbConsumer"/>
-        <property name="targetMethod" value="configure"/>
-        <property name="arguments">
-            <map>
-                <entry value-ref="dataSourceMYERPInMemory">
-                    <key>
-                        <value type="com.dummy.myerp.consumer.db.DataSourcesEnum">MYERP</value>
-                    </key>
-                </entry>
-            </map>
-        </property>
-    </bean>
-
 
     <!-- ==================== Consumer-Proxy ==================== -->
 
@@ -66,12 +52,13 @@
         <property name="locations">
             <list>
                 <value>classpath:com/dummy/myerp/consumer/db_config.properties</value>
-                <value>classpath:com/dummy/myerp/testbusiness/business/IT_db_config.properties</value>
             </list>
         </property>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
 
+    <!--bean id="dataSourceMYERP" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <constructor-arg value="javax.sql.DataSource"/-->
     <bean id="dataSourceMYERP" class="org.apache.commons.dbcp2.BasicDataSource">
         <property name="driverClassName" value="${jdbc.driverClassName}" />
         <property name="url" value="${jdbc.url}" />
@@ -79,12 +66,6 @@
         <property name="password" value="${jdbc.password}" />
     </bean>
 
-    <bean id="dataSourceMYERPInMemory" class="org.apache.commons.dbcp2.BasicDataSource">
-        <property name="driverClassName" value="${spring.datasource.driverClassName}" />
-        <property name="url" value="${spring.datasource.url}" />
-        <property name="username" value="${spring.datasource.username}" />
-        <property name="password" value="${spring.datasource.password}" />
-    </bean>
 
     <!-- ========== SQL ========== -->
     <import resource="sqlContext.xml"/>
