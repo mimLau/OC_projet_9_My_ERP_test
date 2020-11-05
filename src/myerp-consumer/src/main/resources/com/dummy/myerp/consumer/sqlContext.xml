@@ -97,9 +97,9 @@
         </property>
         <property name="SQLgetSeqEcritureComptable">
             <value>
-                SELECT s FROM myerp.sequence_ecriture_comptable
-                WHERE s.journal_code = :journal_code
-                AND s.annee= :annee
+                SELECT * FROM myerp.sequence_ecriture_comptable
+                WHERE journal_code = :journal_code
+                AND annee= :annee
             </value>
         </property>
         <property name="SQLupdateSequenceEcritureComptable">
