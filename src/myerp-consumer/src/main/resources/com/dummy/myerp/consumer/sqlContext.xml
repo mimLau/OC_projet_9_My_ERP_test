@@ -43,6 +43,11 @@
                 WHERE reference = :reference
             </value>
         </property>
+        <property name="SQLgetLastEcritureComptable">
+            <value>
+                SELECT * FROM myerp.ecriture_comptable ORDER BY ID DESC LIMIT 1
+            </value>
+        </property>
         <property name="SQLloadListLigneEcriture">
             <value>
                 SELECT * FROM myerp.ligne_ecriture_comptable
