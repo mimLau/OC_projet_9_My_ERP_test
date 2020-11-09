@@ -8,15 +8,7 @@ import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
 import com.dummy.myerp.model.bean.comptabilite.LigneEcritureComptable;
 import com.dummy.myerp.technical.exception.FunctionalException;
 import org.apache.commons.lang3.ObjectUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -24,6 +16,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ComptabiliteManagerImplIT extends BusinessTestCase {
 
     private ComptabiliteManagerImpl comptabiliteManager = new ComptabiliteManagerImpl();
@@ -31,12 +25,12 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
 
 
     @BeforeEach
-    public void init(){
+    public void init() {
 
         ecritureComptable = new EcritureComptable();
         ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00001");
-        ecritureComptable.setLibelle("Libelle");
+        ecritureComptable.setReference("AC-2020/00003");
+        ecritureComptable.setLibelle("Achat de fournitures");
         ecritureComptable.setDate(new Date());
         ecritureComptable.getListLigneEcriture().add(this.createLigne(606, "105", "250"));
         ecritureComptable.getListLigneEcriture().add(this.createLigne(606, "1500", "2500"));
@@ -45,6 +39,7 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
     }
 
     @Test
+    @Order(1)
     public void checkListEcritureComptable_whenGetListEcritureComptable() {
 
         // GIVEN
@@ -85,33 +80,36 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
     }
 
     @Test
-    public  void checkInsertEcritureComptable_whenInsertEcritureComptable() throws FunctionalException {
+    @Order(2)
+    public void checkInsertEcritureComptable_whenInsertEcritureComptable() throws FunctionalException {
 
-        // GIVEN
-
-
-        // WHEN
-
-       Throwable t = Assertions.assertThrows(FunctionalException.class, ()->{
-            comptabiliteManager.insertEcritureComptable(ecritureComptable);
-        });
-
-       Assertions.assertTrue(t.getMessage().equals("Une autre écriture comptable existe déjà avec la même référence."));
-    }
-
-    @Test
-    public  void checkInsertEcritureComptable_whenInsertEcritureComptableBis() throws FunctionalException {
-
-        // GIVEN
-
+        // GIVEN ecritureComptable in init()
 
         // WHEN
         comptabiliteManager.insertEcritureComptable(ecritureComptable);
-        List<EcritureComptable> ecritureComptableList = comptabiliteManager.getListEcritureComptable();
-        int size = ecritureComptableList.size();
+        String ref = comptabiliteManager.getLastEcritureComptable().getReference();
 
         // THEN
-        assertThat(size).isEqualTo(6);
+        assertThat(ref).isEqualTo(ecritureComptable.getReference());
+    }
+
+    @Test
+    public void checkInsertEcritureComptable_whenInsertEcritureComptableAlreadyExists_thenThrowFunctionnalException() throws FunctionalException {
+
+        // GIVEN ecritureComptable in init()
+
+        // WHEN
+        Throwable t = Assertions.assertThrows(FunctionalException.class, () -> {
+            comptabiliteManager.insertEcritureComptable(ecritureComptable);
+        });
+
+        // THEN
+        Assertions.assertTrue(t.getMessage().equals("Une autre écriture comptable existe déjà avec la même référence."));
+    }
+
+    @Test
+    public void checkUpdateEcritureComptable() {
+
     }
 
     private LigneEcritureComptable createLigne(Integer pCompteComptableNumero, String pDebit, String pCredit) {
