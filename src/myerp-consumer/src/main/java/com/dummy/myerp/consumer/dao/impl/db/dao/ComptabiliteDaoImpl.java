@@ -148,6 +148,25 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
         return vBean;
     }
 
+    /** SQLgetLastEcritureComptable */
+    private static String SQLgetLastEcritureComptable;
+    public void setSQLgetLastEcritureComptable(String pSQLgetLastEcritureComptable) {
+        SQLgetLastEcritureComptable = pSQLgetLastEcritureComptable;
+    }
+    @Override
+    public EcritureComptable getLastEcritureComptable() throws NotFoundException {
+        NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
+        MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
+        EcritureComptableRM vRM = new EcritureComptableRM();
+        EcritureComptable vBean;
+        try {
+            vBean = vJdbcTemplate.queryForObject(SQLgetLastEcritureComptable, vSqlParams, vRM);
+        } catch (EmptyResultDataAccessException vEx) {
+            throw new NotFoundException("EcritureComptable non trouvée");
+        }
+        return vBean;
+    }
+
 
     /** SQLloadListLigneEcriture */
     private static String SQLloadListLigneEcriture;
