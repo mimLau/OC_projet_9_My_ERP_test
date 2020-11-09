@@ -82,4 +82,19 @@ public interface ComptabiliteManager {
      * @param pId l'id de l'écriture
      */
     void deleteEcritureComptable(Integer pId);
+
+
+    /**
+     * Retrieve the EcritureComptable by it reference
+     * @param reference
+     * @return Ecriture comptable
+     */
+    EcritureComptable getEcritureComptableByRef(String reference);
+
+    /**
+     * Retrieve the last EcritureComptable
+     * @return Ecriture comptable
+     */
+    EcritureComptable getLastEcritureComptable();
+
 }
