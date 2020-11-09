@@ -50,7 +50,15 @@ public interface ComptabiliteDao {
      * @return {@link EcritureComptable}
      * @throws NotFoundException : Si l'écriture comptable n'est pas trouvée
      */
-    EcritureComptable getEcritureComptable(Integer pId) throws NotFoundException;
+     EcritureComptable getEcritureComptable(Integer pId) throws NotFoundException;
+
+    /**
+     * Renvoie l'Écriture Comptable d'id {@code pId}.
+     *
+     * @return {@link EcritureComptable}
+     * @throws NotFoundException : Si l'écriture comptable n'est pas trouvée
+     */
+     EcritureComptable getLastEcritureComptable() throws NotFoundException;
 
     /**
      * Renvoie l'Écriture Comptable de référence {@code pRef}.
