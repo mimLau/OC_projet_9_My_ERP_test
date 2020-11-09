@@ -446,4 +446,40 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             getTransactionManager().rollbackMyERP(vTS);
         }
     }
+
+
+    /**
+     * Retrieve the Ecriture compteble by it reference
+     * @param reference
+     * @return EcritureComptable
+     */
+    public EcritureComptable getEcritureComptableByRef(String reference) {
+        EcritureComptable retrievedEcritureComptable;
+        try {
+            retrievedEcritureComptable = getDaoProxy()
+                    .getComptabiliteDao()
+                    .getEcritureComptableByRef(reference);
+
+        } catch (NotFoundException e) {
+            retrievedEcritureComptable = null;
+        }
+        return retrievedEcritureComptable;
+    }
+
+    /**
+     * Retrieve the last ecritureComptable in DB
+     * @return EcritureComptable
+     */
+    public EcritureComptable getLastEcritureComptable() {
+        EcritureComptable retrievedEcritureComptable;
+        try {
+            retrievedEcritureComptable = getDaoProxy()
+                    .getComptabiliteDao()
+                    .getLastEcritureComptable();
+
+        } catch (NotFoundException e) {
+            retrievedEcritureComptable = null;
+        }
+        return retrievedEcritureComptable;
+    }
 }
