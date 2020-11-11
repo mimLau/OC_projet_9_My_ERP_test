@@ -13,6 +13,7 @@ import com.dummy.myerp.technical.util.DateUtility;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ComptabiliteManagerImplTest {
 
+    @Spy
     private ComptabiliteManagerImpl comptabiliteManagerImpl = new ComptabiliteManagerImpl();
 
     private static DaoProxy daoProxyMock;
@@ -35,6 +37,8 @@ public class ComptabiliteManagerImplTest {
     private static BusinessProxy businessProxyMock;
     private static TransactionManager transactionManagerMock;
     EcritureComptable ecritureComptable;
+
+
 
 
     @BeforeEach
@@ -199,7 +203,7 @@ public class ComptabiliteManagerImplTest {
 
     @Test
     @Tag("RG1")
-    @DisplayName("Given Compte comptable With List of line ecriture which subtract of total debit with totql credit is < 0,when CheckEcritureComptableUnitRG1 then throw FunctionnalException")
+    @DisplayName("Given Compte comptable With List of lines ecriture which subtract of total debit with total credit is < 0, when CheckEcritureComptableUnitRG1 then throw FunctionnalException")
     public void givenCompteComptableWithListOfLigneEcritureWithNegativeBalance_whenCheckEcritureComptableUnitRG1_thenThrowFunctionalException() throws NotFoundException {
 
         // Given
@@ -237,7 +241,7 @@ public class ComptabiliteManagerImplTest {
 
     @Test
     @Tag("RG1")
-    @DisplayName("Given Compte comptable With List of line ecriture which subtract of total debit with total credit is > 0,when CheckEcritureComptableUnitRG1 then throw FunctionnalException")
+    @DisplayName("Given Compte comptable With List of line ecriture which subtract of total debit with total credit is > 0, when CheckEcritureComptableUnitRG1 then throw FunctionnalException")
     public void givenCompteComptableWithListOfLigneEcritureWithPositiveBalance_whenCheckEcritureComptableUnitRG1_thenThrowFunctionalException() throws NotFoundException, FunctionalException {
 
         // Given
@@ -482,7 +486,7 @@ public class ComptabiliteManagerImplTest {
 
     @Test
     @Tag("RG7")
-    @DisplayName("Given Compte comptable Without List of line ecriture,when CheckEcritureComptableUnitRG1 then throw notFoundException")
+    @DisplayName("Given a list of ligneEcritureComptable one of which has more than 2 decimal places, when CheckEcritureComptableUnitRG7 then throw notFoundException")
     public void givenCompteComptable_whenCheckEcritureComptableUnit_RG7_thenThrowFunctionnalException() {
 
         // GIVEN
@@ -495,7 +499,7 @@ public class ComptabiliteManagerImplTest {
                 FunctionalException.class, () -> comptabiliteManagerImpl.checkEcritureComptableUnit_RG7(ecritureComptable));
 
         // THEN
-        assertThat(exception.getMessage()).isEqualTo("Le montant des lignes écriture doit comporter au maximum 2 chiffres.");
+        assertThat(exception.getMessage()).isEqualTo("Le montant des lignes écriture doit comporter au maximum 2 chiffres après la virgule.");
     }
 
     @Test
@@ -594,73 +598,105 @@ public class ComptabiliteManagerImplTest {
 
     @Test
     @DisplayName("Given ecritureComptable with a null reference, when insertEcritureComptable then throw functionnalException")
-    void givenEcritureCompatableWithRefNull_whenInsertEcritureComptable_thenThrowFunctionalException() {
-        ecritureComptable.setReference(null);
+    void givenEcritureCompatableWithRefNull_whenInsertEcritureComptable_thenThrowFunctionalException() throws FunctionalException {
 
+        // GIVEN
+
+
+        ecritureComptable.setReference(null);
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
 
+        // WHEN
         FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.insertEcritureComptable(ecritureComptable));
+
+        // THEN
+        verify(comptabiliteManagerImpl, times(1)).checkEcritureComptable(ecritureComptable);
         assertThat("La référence de l'écriture comptable est null!!").isEqualTo(exception.getMessage());
     }
 
     @Test
     @DisplayName("Given not equilbrée ecritureComptable , when insertEcritureComptable then throw functionnalException")
-    void givenNotEquilibreEcritureCompatableWithRefNull_whenInsertEcritureComptable_thenThrowFunctionalException() {
+    void givenNotEquilibreEcritureCompatableWithRefNull_whenInsertEcritureComptable_thenThrowFunctionalException() throws FunctionalException {
 
+        // GIVEN
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(3), "ecriture3", null, new BigDecimal(215)));
 
+        // WHEN
         FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.insertEcritureComptable(ecritureComptable));
+
+        // THEN
+        verify(comptabiliteManagerImpl, times(1)).checkEcritureComptable(ecritureComptable);
         assertThat("L'écriture comptable n'est pas équilibrée.").isEqualTo(exception.getMessage());
     }
 
     @Test
     @DisplayName("Given ecritureComptable with a date null, when insertEcritureComptable then throw functionnalException")
-    void givenEcritureCompatableWithDateNull_whenInsertEcritureComptable_thenThrowFunctionalException() {
+    void givenEcritureCompatableWithDateNull_whenInsertEcritureComptable_thenThrowFunctionalException() throws FunctionalException {
 
+        // GIVEN
         ecritureComptable.setDate(null);
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
 
+        // WHEN
         FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.insertEcritureComptable(ecritureComptable));
+
+        // THEN
+        verify(comptabiliteManagerImpl, times(1)).checkEcritureComptable(ecritureComptable);
         assertThat("L'écriture comptable ne respecte pas les contraintes de validation : La date ne doit pas être nulle.").isEqualTo(exception.getMessage());
     }
 
     @Test
     @DisplayName("Given ecritureComptable with a null reference, when updateEcritureComptable then throw functionnalException")
-    void givenEcritureCompatableWithRefNull_whenUpdateEcritureComptable_thenThrowFunctionalException() {
-        ecritureComptable.setReference(null);
+    void givenEcritureCompatableWithRefNull_whenUpdateEcritureComptable_thenThrowFunctionalException() throws FunctionalException {
 
+        // GIVEN
+        ecritureComptable.setReference(null);
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
 
+        // WHEN
         FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.updateEcritureComptable(ecritureComptable));
+
+        // THEN
+        verify(comptabiliteManagerImpl, times(1)).checkEcritureComptable(ecritureComptable);
         assertThat("La référence de l'écriture comptable est null!!").isEqualTo(exception.getMessage());
     }
 
     @Test
     @DisplayName("Given not equilibrée ecritureComptable , when updateEcritureComptable then throw functionnalException")
-    void givenNotEquilibreEcritureCompatableWithRefNull_whenUpdateEcritureComptable_thenThrowFunctionalException() {
+    void givenNotEquilibreEcritureCompatableWithRefNull_whenUpdateEcritureComptable_thenThrowFunctionalException() throws FunctionalException {
 
+        // GIVEN
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(3), "ecriture3", null, new BigDecimal(215)));
 
+        // WHEN
         FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.updateEcritureComptable(ecritureComptable));
+
+        // THEN
+        verify(comptabiliteManagerImpl, times(1)).checkEcritureComptable(ecritureComptable);
         assertThat("L'écriture comptable n'est pas équilibrée.").isEqualTo(exception.getMessage());
     }
 
     @Test
     @DisplayName("Given ecritureComptable with a date null, when updateEcritureComptable then throw functionnalException")
-    void givenEcritureCompatableWithDateNull_whenUpdateEcritureComptable_thenThrowFunctionalException() {
+    void givenEcritureCompatableWithDateNull_whenUpdateEcritureComptable_thenThrowFunctionalException() throws FunctionalException {
 
+        // GIVEN
         ecritureComptable.setDate(null);
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
 
+        // WHEN
         FunctionalException exception = assertThrows(FunctionalException.class, () -> comptabiliteManagerImpl.updateEcritureComptable(ecritureComptable));
+
+        // THEN
+        verify(comptabiliteManagerImpl, times(1)).checkEcritureComptable(ecritureComptable);
         assertThat("L'écriture comptable ne respecte pas les contraintes de validation : La date ne doit pas être nulle.").isEqualTo(exception.getMessage());
     }
 
