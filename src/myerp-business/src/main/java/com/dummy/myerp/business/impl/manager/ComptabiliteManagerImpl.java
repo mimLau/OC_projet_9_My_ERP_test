@@ -62,7 +62,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     /**
      * {@inheritDoc}
      */
-    // TODO à tester
     @Override
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
 
@@ -95,10 +94,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }
 
         // Récupération de la dernière valeur de la séquence de l'ecriture comptable.
-        int incrementedDerniereValeur = seqEcritureComptable.getDerniereValeur();
+        int derniereValeur = seqEcritureComptable.getDerniereValeur();
         // Mettre à jour la référence de l'écritureComptable
-        String updatedReference = journalCode + "-" + ecritureYear + "/" + referenceCodeFormat.format(incrementedDerniereValeur);
+        String updatedReference = journalCode + "-" + ecritureYear + "/" + referenceCodeFormat.format(derniereValeur);
         pEcritureComptable.setReference(updatedReference);
+
     }
 
     /**
@@ -204,10 +204,12 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable
      * @throws FunctionalException
      */
-    // ===== RG_Compta_3 : une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
+    // ===== RG_Compta_3 : Une écriture comptable doit avoir au moins 2 lignes d'écriture (1 au débit, 1 au crédit)
     protected void checkEcritureComptableUnit_RG3(EcritureComptable pEcritureComptable) throws FunctionalException {
+
         int vNbrCredit = 0;
         int vNbrDebit = 0;
+
         for (LigneEcritureComptable vLigneEcritureComptable : pEcritureComptable.getListLigneEcriture()) {
             if (BigDecimal.ZERO.compareTo(ObjectUtils.defaultIfNull(vLigneEcritureComptable.getCredit(),
                     BigDecimal.ZERO)) != 0) {
@@ -337,7 +339,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             }
 
             if(creditNbDigit > 2 || debitNbDigit > 2)
-                throw new FunctionalException("Le montant des lignes écriture doit comporter au maximum 2 chiffres.");
+                throw new FunctionalException("Le montant des lignes écriture doit comporter au maximum 2 chiffres après la virgule.");
         }
 
         /*
@@ -405,7 +407,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param journalCode the journal code of the ecriture comptable.
      * @return the retrieved sequenceEcritureComptable
      */
-    protected SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, String journalCode) {
+    public SequenceEcritureComptable getSequenceEcritureComptable(Integer ecritureYear, String journalCode) {
         SequenceEcritureComptable retrievedSeqEcritureComptable;
         try {
             retrievedSeqEcritureComptable = getDaoProxy()
@@ -422,7 +424,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      *  Update a sequenceEcritureComptable
      * @param sequenceEcritureComptable to be updated
      */
-    protected void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
+    public void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
         TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
         try {
             getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(sequenceEcritureComptable);
@@ -437,7 +439,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      *  Insert a new sequenceEcritureComptable
      * @param sequenceEcritureComptable
      */
-    protected void createNewSequenceEcritureComptrable(SequenceEcritureComptable sequenceEcritureComptable) {
+    public void createNewSequenceEcritureComptrable(SequenceEcritureComptable sequenceEcritureComptable) {
         TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
         try {
             getDaoProxy().getComptabiliteDao().insertSequenceEcritureComptable(sequenceEcritureComptable);
@@ -445,6 +447,25 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         } finally {
             getTransactionManager().rollbackMyERP(vTS);
         }
+    }
+
+    /**
+     * Retrieve the Ecriture compteble by it reference
+     * @param pId
+     * @return EcritureComptable
+     */
+    public EcritureComptable getEcritureComptableById(Integer pId) throws NotFoundException {
+        EcritureComptable retrievedEcritureComptable;
+        try {
+            retrievedEcritureComptable = getDaoProxy()
+                    .getComptabiliteDao()
+                    .getEcritureComptableById(pId);
+
+        } catch (NotFoundException e) {
+            retrievedEcritureComptable = null;
+            throw new NotFoundException("EcritureComptable non trouvée : id= " + pId);
+        }
+        return retrievedEcritureComptable;
     }
 
 
