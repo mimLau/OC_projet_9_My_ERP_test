@@ -113,7 +113,7 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
         SQLgetEcritureComptable = pSQLgetEcritureComptable;
     }
     @Override
-    public EcritureComptable getEcritureComptable(Integer pId) throws NotFoundException {
+    public EcritureComptable getEcritureComptableById(Integer pId) throws NotFoundException {
         NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
         MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
         vSqlParams.addValue("id", pId);
@@ -122,7 +122,7 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
         try {
             vBean = vJdbcTemplate.queryForObject(SQLgetEcritureComptable, vSqlParams, vRM);
         } catch (EmptyResultDataAccessException vEx) {
-            throw new NotFoundException("EcritureComptable non trouvée : id=" + pId);
+            throw new NotFoundException("EcritureComptable non trouvée : id= " + pId);
         }
         return vBean;
     }
@@ -329,42 +329,46 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
     // ==================== SequenceEcritureComptable - UPDATE ====================
 
     /** SQLupdateSequenceEcritureComptable */
-    private static String SQLupdateSequenceEcritureComptable;
+   /* private static String SQLupdateSequenceEcritureComptable;
     public void setSQLupdateSequenceEcritureComptable(String pSQLupdateSequenceEcritureComptable) {
         SQLupdateSequenceEcritureComptable = pSQLupdateSequenceEcritureComptable;
-    }
+    }*/
 
     @Override
     public void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
 
         NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
-        MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
-        vSqlParams.addValue("journal_code", sequenceEcritureComptable.getJournal().getCode());
-        vSqlParams.addValue("annee", sequenceEcritureComptable.getAnnee());
-        vSqlParams.addValue("derniere_Valeur", sequenceEcritureComptable.getDerniereValeur());
 
-        vJdbcTemplate.update(SQLupdateSequenceEcritureComptable, vSqlParams);
+        String sqlUpdateSequenceEcritureComptable = "UPDATE myerp.sequence_ecriture_comptable SET derniere_valeur = :derniere_valeur where annee = :annee and journal_code = :journal_code";
+        MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
+        vSqlParams.addValue("derniere_valeur", sequenceEcritureComptable.getDerniereValeur());
+        vSqlParams.addValue("annee", sequenceEcritureComptable.getAnnee());
+        vSqlParams.addValue("journal_code", sequenceEcritureComptable.getJournal().getCode());
+
+        vJdbcTemplate.update(sqlUpdateSequenceEcritureComptable, vSqlParams);
 
     }
 
     // ==================== SequenceEcritureComptable - INSERT ====================
 
     /** SQLinsertSequenceEcritureComptable */
-    private static String SQLinsertSequenceEcritureComptable;
+    /*private static String SQLinsertSequenceEcritureComptable;
     public void setSQLinsertSequenceEcritureComptable(String pSQLinsertSequenceEcritureComptable) {
         SQLinsertSequenceEcritureComptable = pSQLinsertSequenceEcritureComptable;
-    }
+    }*/
 
     @Override
     public void insertSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable) {
 
         NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
+
+        String sqlInsertSequenceEcritureComptable = "INSERT INTO myerp.sequence_ecriture_comptable (journal_code, annee, derniere_valeur) VALUES (:journal_code, :annee, :derniere_valeur)";
         MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
         vSqlParams.addValue("journal_code", sequenceEcritureComptable.getJournal().getCode());
         vSqlParams.addValue("annee", sequenceEcritureComptable.getAnnee());
         vSqlParams.addValue("derniere_valeur", sequenceEcritureComptable.getDerniereValeur());
 
-        vJdbcTemplate.update(SQLinsertSequenceEcritureComptable, vSqlParams);
+        vJdbcTemplate.update(sqlInsertSequenceEcritureComptable, vSqlParams);
     }
 
 }
