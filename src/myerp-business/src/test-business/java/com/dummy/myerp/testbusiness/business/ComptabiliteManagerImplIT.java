@@ -2,18 +2,18 @@ package com.dummy.myerp.testbusiness.business;
 
 
 import com.dummy.myerp.business.impl.manager.ComptabiliteManagerImpl;
-import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
-import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
-import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
-import com.dummy.myerp.model.bean.comptabilite.LigneEcritureComptable;
+import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.FunctionalException;
+import com.dummy.myerp.technical.exception.NotFoundException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
+import static java.sql.Date.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -29,8 +29,8 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
 
         ecritureComptable = new EcritureComptable();
         ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
-        ecritureComptable.setReference("AC-2020/00003");
-        ecritureComptable.setLibelle("Achat de fournitures");
+        ecritureComptable.setReference("AC-2020/00001");
+        ecritureComptable.setLibelle("Achat de logiciel");
         ecritureComptable.setDate(new Date());
         ecritureComptable.getListLigneEcriture().add(this.createLigne(606, "105", "250"));
         ecritureComptable.getListLigneEcriture().add(this.createLigne(606, "1500", "2500"));
@@ -51,7 +51,6 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
         // THEN
         assertThat(size).isEqualTo(5);
     }
-
 
     @Test
     public void checkListCompteComptable_whenGetListCompteComptable() {
@@ -94,7 +93,7 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
     }
 
     @Test
-    public void checkInsertEcritureComptable_whenInsertEcritureComptableAlreadyExists_thenThrowFunctionnalException() throws FunctionalException {
+    public void checkInsertEcritureComptable_whenInsertEcritureComptableAlreadyExists_thenThrowFunctionnalException() {
 
         // GIVEN ecritureComptable in init()
 
@@ -108,9 +107,159 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
     }
 
     @Test
-    public void checkUpdateEcritureComptable() {
+    @Order(3)
+    public void checkUpdateEcritureComptable() throws FunctionalException, NotFoundException {
+
+        // GIVEN
+        EcritureComptable ecritureComptableFromDB = comptabiliteManager.getEcritureComptableById(-3);
+        String oldLibelle = ecritureComptableFromDB.getLibelle();
+        ecritureComptableFromDB.setLibelle("New Libelle");
+
+        // WHEN
+        comptabiliteManager.updateEcritureComptable(ecritureComptableFromDB);
+        ecritureComptableFromDB = comptabiliteManager.getEcritureComptableById(-3);
+
+        // THEN
+        assertThat(oldLibelle).isNotEqualTo("New Libelle");
+        assertThat(ecritureComptableFromDB.getLibelle()).isEqualTo("New Libelle");
 
     }
+
+    @Test
+    @Order(4)
+    public void checkDeleteEcritureComptable() {
+
+        // GIVEN ecritureComptable in init()
+
+        // WHEN
+        comptabiliteManager.deleteEcritureComptable(-3);
+        Throwable t = Assertions.assertThrows(NotFoundException.class, () -> {
+            comptabiliteManager.getEcritureComptableById(-3);
+        });
+
+        // THEN
+        Assertions.assertTrue(t.getMessage().equals("EcritureComptable non trouvée : id= -3"));
+
+    }
+
+    @Test
+    public void givenFirstEcritureComptableOfYear_whenAddReference_shouldCreateaRefWithDerniereValeurAtOne() {
+
+        // GIVEN
+        ecritureComptable = new EcritureComptable();
+        ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
+        ecritureComptable.setLibelle("Remboursement credit");
+        ecritureComptable.setDate(new Date());
+
+        // WHEN
+        comptabiliteManager.addReference(ecritureComptable);
+        String ref = ecritureComptable.getReference();
+
+        // THEN
+        assertThat(ref).isEqualTo("BQ-2020/00001");
+
+    }
+
+    @Test
+    public void givenFirstEcritureComptableOfYear_whenAddReference_shouldCreateaRefWithIncrementedDerniereValeur() {
+
+        // GIVEN
+        ecritureComptable = new EcritureComptable();
+        ecritureComptable.setJournal(new JournalComptable("BQ", "Banque"));
+        ecritureComptable.setLibelle("Remboursement credit");
+        LocalDate localDate = LocalDate.of(2016,10,01);
+        Date date = valueOf(localDate);
+        ecritureComptable.setDate(date);
+
+        // WHEN
+        comptabiliteManager.addReference(ecritureComptable);
+        String ref = ecritureComptable.getReference();
+
+        // THEN
+        assertThat(ref).isEqualTo("BQ-2016/00052");
+
+    }
+
+    @Test
+    public void checkGetEcritureComtableByRef() {
+
+        // GIVEN ecritureComptable in init()
+
+        // WHEN
+        ecritureComptable = comptabiliteManager.getEcritureComptableByRef("BQ-2016/00005");
+
+        // THEN
+        assertThat(ecritureComptable.getReference()).isEqualTo("BQ-2016/00005");
+
+    }
+
+    @Test
+    public void checkGetEcritureComptableById() throws NotFoundException {
+
+        // GIVEN ecritureComptable in init()
+
+        // WHEN
+        ecritureComptable = comptabiliteManager.getEcritureComptableById(-2);
+
+        // THEN
+        assertThat(ecritureComptable.getLibelle()).isEqualTo("TMA Appli Xxx");
+
+    }
+
+
+    @Test
+    public void checkgetSequenceEcritureComptable() {
+
+        // GIVEN
+        Integer year = 2016;
+        String journalCode = "OD";
+
+        // WHEN
+        SequenceEcritureComptable sequenceEcritureComptable = comptabiliteManager.getSequenceEcritureComptable(year, journalCode);
+
+        // THEN
+        assertThat(sequenceEcritureComptable.getDerniereValeur()).isEqualTo(88);
+    }
+
+    @Test
+    public void checkInsertSequenceEcritureComptable() {
+
+        // GIVEN
+        JournalComptable journalComptable = new JournalComptable("VE", "Vente");
+        SequenceEcritureComptable sequenceEcritureComptable = new SequenceEcritureComptable(journalComptable, 2020, 1 );
+        Integer dernierVal = sequenceEcritureComptable.getDerniereValeur();
+        SequenceEcritureComptable sequenceEcritureComptableFromDB;
+
+        // WHEN
+        comptabiliteManager.createNewSequenceEcritureComptrable(sequenceEcritureComptable);
+        sequenceEcritureComptableFromDB = comptabiliteManager.getSequenceEcritureComptable(2020, "VE");
+
+
+        // THEN
+        assertThat(dernierVal).isEqualTo(sequenceEcritureComptableFromDB.getDerniereValeur());
+
+    }
+
+    @Test
+    public void checkUpdateSequenceEcritureComptable() {
+
+         // GIVEN
+         SequenceEcritureComptable sequenceEcritureComptable =  comptabiliteManager.getSequenceEcritureComptable(2016, "VE");
+         Integer oldDerniereVal = sequenceEcritureComptable.getDerniereValeur();
+         sequenceEcritureComptable.setDerniereValeur(100);
+         SequenceEcritureComptable sequenceEcritureComptableFromDB;
+
+         // WHEN
+         comptabiliteManager.updateSequenceEcritureComptable(sequenceEcritureComptable);
+         sequenceEcritureComptableFromDB = comptabiliteManager.getSequenceEcritureComptable(2016, "VE");
+
+         // THEN
+         assertThat(oldDerniereVal).isNotEqualTo(sequenceEcritureComptableFromDB.getDerniereValeur());
+         assertThat(sequenceEcritureComptableFromDB.getDerniereValeur()).isEqualTo(100);
+
+     }
+
+
 
     private LigneEcritureComptable createLigne(Integer pCompteComptableNumero, String pDebit, String pCredit) {
         BigDecimal vDebit = pDebit == null ? null : new BigDecimal(pDebit);
