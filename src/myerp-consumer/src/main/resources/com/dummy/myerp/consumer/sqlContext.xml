@@ -107,7 +107,7 @@
                 AND annee= :annee
             </value>
         </property>
-        <property name="SQLupdateSequenceEcritureComptable">
+        <!--property name="SQLupdateSequenceEcritureComptable">
             <value>
                 UPDATE myerp.sequence_ecriture_comptable SET
                 derniere_valeur = :derniere_valeur,
@@ -116,8 +116,8 @@
                 AND
                 annee = :annee
             </value>
-        </property>
-        <property name="SQLinsertSequenceEcritureComptable">
+        </property-->
+        <!--property name="SQLinsertSequenceEcritureComptable">
             <value>
                 INSERT INTO myerp.sequence_ecriture_comptable (
                 journal_code, annee, derniere_valeur
@@ -125,7 +125,7 @@
                 :journal_code, :annee, :derniere_valeur
                 )
             </value>
-        </property>
+        </property-->
     </bean>
 
 </beans>
