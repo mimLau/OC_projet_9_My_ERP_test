@@ -1,6 +1,5 @@
 package com.dummy.myerp.model.bean.comptabilite;
 
-import org.junit.Before;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
