@@ -54,7 +54,7 @@
         <application.name>MyERP</application.name>
 
         <!-- ===== Version properties ===== -->
-        <log4j.version>2.8.1</log4j.version>
+        <log4j.version>2.14.0</log4j.version>
         <spring.version>5.1.7.RELEASE</spring.version>
     </properties>
 
