@@ -63,7 +63,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * {@inheritDoc}
      */
     @Override
-    public synchronized void addReference(EcritureComptable pEcritureComptable) {
+    public synchronized void addReference(EcritureComptable pEcritureComptable) throws FunctionalException {
 
         //Récupération du code du journal_code de pEcritureComptable
         String journalCode = pEcritureComptable.getJournal().getCode();
@@ -98,6 +98,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         // Mettre à jour la référence de l'écritureComptable
         String updatedReference = journalCode + "-" + ecritureYear + "/" + referenceCodeFormat.format(derniereValeur);
         pEcritureComptable.setReference(updatedReference);
+        //this.updateEcritureComptable(pEcritureComptable);
 
     }
 
@@ -274,12 +275,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             //Vérifie que l'année dans la référence correspond à l'année de l'écriture comptable
             if (!refYear.equals(ecritureYear)) {
                 throw new FunctionalException(String.format("L'année de l'écriture comptable (%s) est diférente de celle de la référence (%s).", ecritureYear, refYear));
-            }
-
-            //Vérifie si le code de la référence contient bien 5 chiffres
-            Pattern refCodeRegexFormat = Pattern.compile("\\d{5}");
-            if (!refCodeRegexFormat.matcher(refCode).matches()) {
-                throw new FunctionalException(String.format("Le code (%s) de la référence ne respecte pas le format requis de 5 chiffres.", refCode ));
             }
 
         } else {
