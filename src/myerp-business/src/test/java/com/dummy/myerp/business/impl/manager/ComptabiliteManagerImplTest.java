@@ -67,9 +67,7 @@ public class ComptabiliteManagerImplTest {
     public void givenEcritureComptableWithLigneEcritureLessThan2lines_whenCheckEcritureComptableConstraints_thenThrowFunctionalException() throws Exception {
 
         // GIVEN
-        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(123),
-                null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
 
         // WHEN
         FunctionalException exception = assertThrows(
@@ -86,12 +84,8 @@ public class ComptabiliteManagerImplTest {
 
         // GIVEN
         ecritureComptable.setDate(null);
-        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(123),
-                null));
-        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(1243),
-                null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(1243),null));
 
         // WHEN
         FunctionalException exception = assertThrows(
@@ -110,11 +104,9 @@ public class ComptabiliteManagerImplTest {
         // GIVEN
         ecritureComptable.setReference("QS-12234-2345455");
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(123),
-                null));
+                null, new BigDecimal(123),null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(1243),
-                null));
+                null, new BigDecimal(1243),null));
 
         // WHEN
         FunctionalException exception = assertThrows(
@@ -150,11 +142,9 @@ public class ComptabiliteManagerImplTest {
         // GIVEN
         ecritureComptable.setLibelle("");
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(123),
-                null));
+                null, new BigDecimal(123),null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),
-                null, new BigDecimal(1243),
-                null));
+                null, new BigDecimal(1243),null));
 
         // WHEN
         FunctionalException exception = assertThrows(
@@ -283,10 +273,8 @@ public class ComptabiliteManagerImplTest {
     public void givenEcritureComptableWithNotEquilibreLinesEcriture_whenCheckEcritureComptableUnitRG2_thenThrowFunctionalException() {
 
         // Given
-        ecritureComptable.getListLigneEcriture().add(
-                new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
-        ecritureComptable.getListLigneEcriture().add(
-                new LigneEcritureComptable(new CompteComptable(2),null, null, new BigDecimal(1234)));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1),null, new BigDecimal(123),null));
+        ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2),null, null, new BigDecimal(1234)));
 
         // WHEN
         FunctionalException exception = assertThrows(
@@ -357,12 +345,13 @@ public class ComptabiliteManagerImplTest {
     @Test
     @Tag("RG5")
     @DisplayName("Given ecriture comptable at addReference(), if ecriture comptable exists in bdd then added reference should be equal at the derniere value plus one")
-    public void givenEcritureComptable_whenAddReference_thenCodeOfEcritureCompatbleReferenceShouldEqualAtDerniereValPlusOne() throws NotFoundException {
+    public void givenEcritureComptable_whenAddReference_thenCodeOfEcritureCompatbleReferenceShouldEqualAtDerniereValPlusOne() throws NotFoundException, FunctionalException {
 
         // Given
         Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
-        doReturn(new SequenceEcritureComptable(ecritureComptable.getJournal(), 2020, 40))
-                .when(comptabiliteDaoMock).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        doReturn(new SequenceEcritureComptable(ecritureComptable.getJournal(), 2020, 40)).when(comptabiliteDaoMock).getSeqEcritureComptableByJCodeAndYear(2020, "AC");
+        //doNothing().when(comptabiliteManagerImpl).updateEcritureComptable(ecritureComptable);
+
 
         // WHEN
         comptabiliteManagerImpl.addReference(ecritureComptable);
@@ -377,11 +366,12 @@ public class ComptabiliteManagerImplTest {
     @Test
     @Tag("RG5")
     @DisplayName("Given ecriture comptable at addReference(), if ecriture comptable doesn't exist in bdd then added reference should be equal at one")
-    public void givenEcritureComptable_whenAddReference_thenReturnNull_and_codeOfEcritureCompatbleReferenceShouldEqualAtOne() throws NotFoundException {
+    public void givenEcritureComptable_whenAddReference_thenReturnNull_and_codeOfEcritureCompatbleReferenceShouldEqualAtOne() throws NotFoundException, FunctionalException {
 
         // GIVEN
         Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
         when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC")).thenReturn(null);
+       // doNothing().when(comptabiliteManagerImpl).updateEcritureComptable(ecritureComptable);
 
         // WHEN
         comptabiliteManagerImpl.addReference(ecritureComptable);
@@ -397,11 +387,12 @@ public class ComptabiliteManagerImplTest {
     @Test
     @Tag("RG5")
     @DisplayName("Given ecriture comptable at addReference(), then insert a new sequence in ecriture comptable")
-    public void givenEcritureComptavle_whenAddRef_thenInsertAnewSequence() throws NotFoundException {
+    public void givenEcritureComptavle_whenAddRef_thenInsertAnewSequence() throws NotFoundException, FunctionalException {
 
         // GIVEN
         Mockito.when(daoProxyMock.getComptabiliteDao()).thenReturn(comptabiliteDaoMock);
         when(daoProxyMock.getComptabiliteDao().getSeqEcritureComptableByJCodeAndYear(2020, "AC")).thenReturn(null);
+        //doNothing().when(comptabiliteManagerImpl).updateEcritureComptable(ecritureComptable);
 
         // WHEN
         comptabiliteManagerImpl.addReference(ecritureComptable);
@@ -601,8 +592,6 @@ public class ComptabiliteManagerImplTest {
     void givenEcritureCompatableWithRefNull_whenInsertEcritureComptable_thenThrowFunctionalException() throws FunctionalException {
 
         // GIVEN
-
-
         ecritureComptable.setReference(null);
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(1), "ecriture1", new BigDecimal(300), null));
         ecritureComptable.getListLigneEcriture().add(new LigneEcritureComptable(new CompteComptable(2), "ecriture2", null, new BigDecimal(300)));
