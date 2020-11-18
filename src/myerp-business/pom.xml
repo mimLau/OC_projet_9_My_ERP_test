@@ -135,9 +135,9 @@
     <!-- Profiles -->
     <!-- =============================================================== -->
     <profiles>
-        <!-- Profile utilisé pour lancer les tests d'intégration de la couche Business -->
+        <!-- Profile utilisé pour lancer les tests d'intégration de la couche business -->
         <profile>
-            <id>test-business</id>
+            <id>test-consumer</id>
             <build>
                 <plugins>
                     <!-- Ajout du répertoire src/test-business/java en tant que source de test du module -->
@@ -172,6 +172,10 @@
         </profile>
     </profiles>
 
+
+    <!-- =============================================================== -->
+    <!-- Build -->
+    <!-- =============================================================== -->
 
     <!-- =============================================================== -->
     <!-- Build -->
@@ -278,11 +282,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <!--configuration>
-                    <includes>
-                        <include>**/*IT.java</include>
-                    </includes>
-                </configuration-->
                 <executions>
                     <!--
                         Ensures that both integration-test and verify goals of the Failsafe Maven
