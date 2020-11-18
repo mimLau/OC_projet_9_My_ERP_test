@@ -37,7 +37,9 @@
     <!-- Properties -->
     <!-- =============================================================== -->
     <properties>
-         </properties>
+        <!-- ===== Sonar properties ===== -->
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/./target/site/jacoco-unit-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    </properties>
 
     <!-- =============================================================== -->
     <!-- Dependencies -->

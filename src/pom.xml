@@ -57,9 +57,17 @@
         <log4j.version>2.8.1</log4j.version>
         <spring.version>5.1.7.RELEASE</spring.version>
 
-            <sonar.projectKey>mimLau_OC_projet_9_MyERP_test</sonar.projectKey>
-            <sonar.organization>mimlau</sonar.organization>
-            <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../target/site/jacoco-merged-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
+        <sonar.projectKey>mimLau_OC_projet_9_MyERP_testeg_P9</sonar.projectKey>
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.language>java</sonar.language>
+        <!-- Sonar cloud properties -->
+        <sonar.organization>mimlau</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.login>3e879a1cf6527a57f6f12f45bc55b2c79d8a1781</sonar.login>
+
     </properties>
 
 
@@ -403,7 +411,7 @@
                     <version>2.22.2</version>
                     <configuration>
                         <includes>
-                            <include>**/*Test.*</include>
+                            <include>**/*Test.java</include>
                         </includes>
                     </configuration>
                     <dependencies>
@@ -427,7 +435,7 @@
                     <version>2.22.2</version>
                     <executions>
                         <execution>
-                            <id>integration-tests</id>
+                            <!--id>integration-tests</id-->
                             <goals>
                                 <goal>integration-test</goal>
                                 <goal>verify</goal>
@@ -437,8 +445,11 @@
                                     <additionalClasspathElement>${project.build.directory}/classes</additionalClasspathElement>
                                 </additionalClasspathElements>
                                 <includes>
-                                    <include>**/*IntegrationTest.java</include>
+                                    <include>**/*IT.java</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>**/*Test.java</exclude>
+                                </excludes>
                                 <forkCount>1</forkCount>
                                 <reuseForks>false</reuseForks>
                                 <useSystemClassLoader>false</useSystemClassLoader>
