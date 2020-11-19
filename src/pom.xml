@@ -57,7 +57,7 @@
         <log4j.version>2.8.1</log4j.version>
         <spring.version>5.1.7.RELEASE</spring.version>
 
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../target/site/jacoco-merged-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <!--sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../target/site/jacoco-merged-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths-->
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
         <sonar.projectKey>mimLau_OC_projet_9_MyERP_testeg_P9</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>

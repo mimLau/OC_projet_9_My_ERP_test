@@ -39,6 +39,7 @@
     <properties>
         <!-- ===== Sonar properties ===== -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/./target/site/jacoco-merged-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/./target/site/jacoco-unit-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <!-- =============================================================== -->
@@ -159,7 +160,7 @@
     <profiles>
         <!-- Profile utilisé pour lancer les tests d'intégration de la couche business -->
         <profile>
-            <id>test-consumer</id>
+            <id>test-business</id>
             <build>
                 <plugins>
                     <!-- Ajout du répertoire src/test-business/java en tant que source de test du module -->
@@ -195,9 +196,6 @@
     </profiles>
 
 
-    <!-- =============================================================== -->
-    <!-- Build -->
-    <!-- =============================================================== -->
 
     <!-- =============================================================== -->
     <!-- Build -->
@@ -290,27 +288,8 @@
                     </execution>
 
                     <!--
-                        Merge both UT ans IT reports
-                    -->
-                    <!--execution>
-                        <id>merge-results</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>merge</goal>
-                        </goals>
-                        <configuration>
-                            <fileSets>
-                                <fileSet>
-                                    <directory>${project.build.directory}/coverage-reports</directory>
-                                    <includes>
-                                        <include>*.exec</include>
-                                    </includes>
-                                </fileSet>
-                            </fileSets>
-                            <destFile>${project.build.directory}/coverage-reports/aggregate.exec</destFile>
-                        </configuration>
-                    </execution-->
-
+                      Merge both UT ans IT reports
+                  -->
                     <execution>
                         <id>merge-unit-and-integration</id>
                         <phase>post-integration-test</phase>
@@ -329,19 +308,6 @@
                             <destFile>${project.build.directory}/jacoco-output/merged.exec</destFile>
                         </configuration>
                     </execution>
-
-
-                    <!--execution>
-                        <id>post-merge-report</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/coverage-reports/aggregate.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
-                        </configuration>
-                    </execution-->
 
                     <execution>
                         <id>create-merged-report</id>
@@ -367,6 +333,7 @@
                     <argLine>${surefire.jacoco.args}</argLine>
                 </configuration>
             </plugin>
+
             <!-- Failsafe plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

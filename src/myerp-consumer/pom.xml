@@ -38,6 +38,7 @@
     <properties>
         <!-- ===== Sonar properties ===== -->
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/./target/site/jacoco-merged-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/./target/site/jacoco-unit-test-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
 
@@ -241,24 +242,6 @@
                     <!--
                       Merge both UT ans IT reports
                   -->
-                    <!--execution>
-                        <id>merge-results</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>merge</goal>
-                        </goals>
-                        <configuration>
-                            <fileSets>
-                                <fileSet>
-                                    <directory>${project.build.directory}/coverage-reports</directory>
-                                    <includes>
-                                        <include>*.exec</include>
-                                    </includes>
-                                </fileSet>
-                            </fileSets>
-                            <destFile>${project.build.directory}/coverage-reports/aggregate.exec</destFile>
-                        </configuration>
-                    </execution-->
 
                     <execution>
                         <id>merge-unit-and-integration</id>
@@ -278,19 +261,6 @@
                             <destFile>${project.build.directory}/jacoco-output/merged.exec</destFile>
                         </configuration>
                     </execution>
-
-
-                    <!--execution>
-                        <id>post-merge-report</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/coverage-reports/aggregate.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
-                        </configuration>
-                    </execution-->
 
                     <execution>
                         <id>create-merged-report</id>
@@ -316,6 +286,7 @@
                     <argLine>${surefire.jacoco.args}</argLine>
                 </configuration>
             </plugin>
+
             <!-- Failsafe plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
