@@ -5,7 +5,7 @@
 
 ## Table of contents 
 * [Informations générales](#général) 
-* [Technomogies utilisées](#technologies) 
+* [Technologies utilisées](#technologies) 
 * [La base de données](#bdd) 
 * [Configuration du serveur d’intégration](#serveurIntegration) 
 
@@ -91,26 +91,26 @@ Télécharger à partir du lien suivant https://www.jenkins.io/download/, la ver
 
 ### Configuration de Jacco dans jenkins
 
-Lancer Jenkins, puis se rendre dans **Manage jenkins**. Cliquer sur le menu **Manage Plugins**. Cliquer sur l'onglet **Available**, puis taper Jacoco dans le champs de recherche. Cocher le plugin Jacoco et cliquer sur installer. Une fois l'installtion terminée, redémarer Jenkin.
+Lancer Jenkins, puis se rendre dans **Manage jenkins**. Cliquer sur le menu **Manage Plugins**. Cliquer sur l'onglet **Available**, puis taper **Jacoco** dans le champs de recherche. Cocher le plugin **Jacoco** et cliquer sur installer. Une fois l'installtion terminée, redémarer Jenkin.
 
 ### Configuration du job des tests unitaires
 
 Se rendre dans le menu Jenkins, cliquer sur **New Item**, donner un nom à votre job, dans notre cas **MYERP_UNIT_TESTS** et choisissez l'option **Maven projet** puis valider.
 
 On arrive sur la page de configuration. Dans la partie **Général**, cochez **GitHub project** et taper dans le champs **Project url**, l'url du dépot du projet (https://github.com/mimLau/OC_projet_9_MyERP_test.git). 
-Dans **Source Code Management**, cliquer sur **Git** et coller à nouveau l'url du dépot du projet dans le champs Repository URL.
+Dans **Source Code Management**, cliquer sur **Git** et coller à nouveau l'url du dépot du projet dans le champs **Repository URL**.
 
-Dans la partie **Build** dans le champs **Root Pom**, tapez src/pom.xml.
+Dans la partie **Build** dans le champs **Root Pom**, tapez **src/pom.xml**.
 Puis dans le champs **Goals and option**, tapez **test**.
 
 Enfin, dérouler le menu **Add post-build action**, **Record Jacoco coverage report**, puis valider la configuration. 
-Lancer un job, en cliquant dans le menu à droite sr **Build job**.
+Lancer un job, en cliquant dans le menu à droite sur **Build job**.
 
 
 ### Configuration du job des tests d'intégration
 
 Procéder de la même facon que pour les tests unitaires. 
-Créer un nouveau item pour les tests d'intégration du module myerp-business et un pour le module myerp-consumer.
+Créer deux nouveaux items, un pour les tests d'intégration du module myerp-business intitulé **MYERP_TEST_BUSINESS_IT** et un pour le module myerp-consumer intitulé **MYERP_TEST_CONSUMER_IT**.
 Dans le champs **Goals and option**, cettte fois-ci, taper **clean verify -P test-business -pl myerp-business** pour les tests d'intégration du module myerp-business, et **clean verify -P test-consumer -pl myerp-consumer** pour les tests d'intégration du module myerp-consumer.
 
 Puis dans **Record Jacoco coverage report**, dans le champs **Path to exec files** taper  __**/jacoco-integration-tests.exec__ , puis valider.
