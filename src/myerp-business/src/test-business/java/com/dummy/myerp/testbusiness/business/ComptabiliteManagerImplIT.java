@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-/*@ExtendWith(SpringExtension.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "/com/dummy/myerp/business/applicationContext.xml")
 
-@SqlGroup({
+/*@SqlGroup({
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/truncate_DB_IT.sql"),
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/data.sql")})*/
 
@@ -102,7 +102,6 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
         // WHEN
         comptabiliteManager.insertEcritureComptable(ecritureComptable);
         String ref = comptabiliteManager.getLastEcritureComptable().getReference();
-
         // THEN
         assertThat(ref).isEqualTo(ecritureComptable.getReference());
     }
@@ -122,6 +121,7 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
     }*/
 
     @Test
+    @Order(4)
     public void checkUpdateEcritureComptable() throws FunctionalException, NotFoundException {
 
         // GIVEN
