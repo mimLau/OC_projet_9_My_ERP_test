@@ -146,6 +146,25 @@ public class ComptabliteDaoImplIT extends AbstractDbConsumer {
     }
 
     @Test
+    public void checkEcritureComptable() throws NotFoundException {
+
+        // GIVEN
+        ecritureComptable = comptabiliteDaoImpl.getEcritureComptableById(-4);
+        String oldLibelle = ecritureComptable.getLibelle();
+        ecritureComptable.setLibelle("New libelle");
+        EcritureComptable ecritureComptableFromDB;
+
+        // WHEN
+        comptabiliteDaoImpl.updateEcritureComptable(ecritureComptable);
+        ecritureComptableFromDB = comptabiliteDaoImpl.getEcritureComptableById(-4);
+
+        // THEN
+        assertThat(oldLibelle).isNotEqualTo(ecritureComptableFromDB.getLibelle());
+        assertThat(ecritureComptableFromDB.getLibelle()).isEqualTo("New libelle");
+
+    }
+
+    @Test
     public void checkgetSequenceEcritureComptable() throws NotFoundException {
 
         // GIVEN
