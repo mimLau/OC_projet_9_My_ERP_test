@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +33,11 @@ public class ComptabliteDaoImplIT extends AbstractDbConsumer {
     @BeforeAll
     public static void testSetupBeforeAll() {
         comptabiliteDaoImpl = ComptabiliteDaoImpl.getInstance();
+    }
+
+    @BeforeEach
+    public void init() {
+        ecritureComptable = new EcritureComptable();
     }
 
     @Test
@@ -114,6 +120,28 @@ public class ComptabliteDaoImplIT extends AbstractDbConsumer {
 
         // THEN
         assertThat(ecritureComptable.getLibelle()).isEqualTo("TMA Appli Xxx");
+
+    }
+
+    @Test
+    public void checkInsertEcritureComptable() throws NotFoundException {
+
+        // GIVEN
+        ecritureComptable = new EcritureComptable();
+        ecritureComptable.setJournal(new JournalComptable("AC", "Achat"));
+        ecritureComptable.setReference("BB-2020/00001");
+        ecritureComptable.setLibelle("Test");
+        ecritureComptable.setDate(new Date());
+
+        EcritureComptable ecritureComptableFromDB;
+
+        // WHEN
+        comptabiliteDaoImpl.insertEcritureComptable(ecritureComptable);
+        ecritureComptableFromDB = comptabiliteDaoImpl.getEcritureComptableByRef("BB-2020/00001");
+
+
+        // THEN
+        assertThat("BB-2020/00001").isEqualTo(ecritureComptableFromDB.getReference());
 
     }
 
