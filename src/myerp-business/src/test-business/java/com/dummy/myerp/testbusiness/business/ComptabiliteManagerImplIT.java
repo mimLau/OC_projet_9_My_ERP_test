@@ -26,9 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "/com/dummy/myerp/business/applicationContext.xml")
 
-/*@SqlGroup({
+@SqlGroup({
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/truncate_DB_IT.sql"),
-        @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/data.sql")})*/
+        @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/data.sql")})
 
 public class ComptabiliteManagerImplIT extends BusinessTestCase {
 
