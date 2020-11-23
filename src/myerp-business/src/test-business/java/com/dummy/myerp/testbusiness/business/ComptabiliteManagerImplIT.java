@@ -23,12 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-/*@ExtendWith(SpringExtension.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "/com/dummy/myerp/business/applicationContext.xml")
 
 @SqlGroup({
         @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/truncate_DB_IT.sql"),
-        @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/data.sql")})*/
+        @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:/data.sql")})
 
 public class ComptabiliteManagerImplIT extends BusinessTestCase {
 
@@ -122,7 +122,6 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
     }*/
 
     @Test
-    @Order(3)
     public void checkUpdateEcritureComptable() throws FunctionalException, NotFoundException {
 
         // GIVEN
@@ -153,7 +152,7 @@ public class ComptabiliteManagerImplIT extends BusinessTestCase {
         });
 
         // THEN
-        Assertions.assertTrue(t.getMessage().equals("EcritureComptable non trouvée : id= -3"));
+        Assertions.assertEquals("EcritureComptable non trouvée : id= -3", t.getMessage());
 
     }
 
