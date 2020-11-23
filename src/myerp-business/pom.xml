@@ -6,7 +6,7 @@
     <!-- =============================================================== -->
     <!-- Project informations -->
     <!-- =============================================================== -->
-    <!-- ===== Parent ===== -->
+    <!-- ===== Parent ========= -->
     <parent>
         <groupId>com.dummy.myerp</groupId>
         <artifactId>myerp</artifactId>
@@ -154,11 +154,12 @@
     </dependencies>
 
 
+
     <!-- =============================================================== -->
     <!-- Profiles -->
     <!-- =============================================================== -->
     <profiles>
-        <!-- Profile utilisé pour lancer les tests d'intégration de la couche business -->
+        <!-- Profile utilisé pour lancer les tests d'intégration de la couche Business -->
         <profile>
             <id>test-business</id>
             <build>
@@ -290,6 +291,7 @@
                     <!--
                       Merge both UT ans IT reports
                   -->
+
                     <execution>
                         <id>merge-unit-and-integration</id>
                         <phase>post-integration-test</phase>
@@ -329,7 +331,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- Sets the VM argument line used when unit tests are run. -->
                     <argLine>${surefire.jacoco.args}</argLine>
                 </configuration>
             </plugin>
@@ -338,20 +339,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <argLine>${failsafe.jacoco.args}</argLine>
+                    <excludes>
+                        <exclude>**/*Test.java</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
-                    <!--
-                        Ensures that both integration-test and verify goals of the Failsafe Maven
-                        plugin are executed.
-                    -->
                     <execution>
+                        <id>integration-test</id>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
-                        <configuration>
-                            <!-- Sets the VM argument line used when integration tests are run. -->
-                            <argLine>${failsafe.jacoco.args}</argLine>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
